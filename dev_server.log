@@ -1,30 +1,29 @@
 
-> reserve-papagayo@0.0.1 dev
+> reserve-papagayo@0.0.1 start
 > astro dev
 
-06:17:36 [types] Generated 2ms
+06:55:13 [types] Generated 1ms
+06:55:13 [vite] Port 4321 is in use, trying another one...
 
- astro  v4.16.18 ready in 462 ms
+ astro  v4.16.18 ready in 457 ms
 
-┃ Local    http://localhost:4321/
+┃ Local    http://localhost:4322/
 ┃ Network  use --host to expose
 
-06:17:37 watching for file changes...
-
- update  ▶ New version of Astro available: 6.1.1
-  Run npx @astrojs/upgrade to update
-
-06:18:25 [200] / 21ms
-06:18:26 [200] /_image 401ms
-06:18:26 [200] /_image 527ms
-06:18:26 [200] /_image 647ms
-06:18:26 [200] /_image 695ms
-06:18:27 [200] /_image 1794ms
-06:18:27 [200] /_image 1340ms
-06:18:27 [200] /_image 1414ms
-06:18:28 [200] /_image 513ms
-06:18:30 [200] /_image 4294ms
-06:18:30 [200] /_image 4409ms
-06:18:31 [200] /_image 3086ms
-06:18:32 [200] /_image 3680ms
-06:18:32 [200] /_image 6766ms
+06:55:14 watching for file changes...
+06:55:53 [200] / 44ms
+06:55:54 [200] /_image 304ms
+06:55:54 [200] /_image 366ms
+06:55:54 [200] /_image 567ms
+06:55:54 [200] /_image 892ms
+06:55:55 [200] /_image 1277ms
+06:55:57 [200] /_image 3357ms
+06:55:57 [200] /_image 3610ms
+06:55:58 [200] /_image 3911ms
+06:55:58 [200] /_image 2988ms
+06:55:58 [200] /_image 309ms
+06:55:58 [200] /_image 610ms
+06:55:59 [200] /_image 5049ms
+06:55:59 [200] /_image 6229ms
+06:56:06 [200] /journal/architecture-of-silence 145ms
+06:56:06 [200] /_image 513ms
