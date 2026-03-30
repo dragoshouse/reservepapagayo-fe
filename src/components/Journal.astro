@@ -1,27 +1,12 @@
 ---
 import { Image } from 'astro:assets';
-// Placeholder images for the articles
-import img1 from '../assets/exp-culinary.jpg';
-import img2 from '../assets/exp-spa.jpg';
-import img3 from '../assets/feature-villa.jpg';
+import { getCollection } from 'astro:content';
 
-const articles = [
-  {
-    title: "The Architecture of Silence",
-    category: "Design",
-    image: img1
-  },
-  {
-    title: "Culinary Roots of Guanacaste",
-    category: "Gastronomy",
-    image: img2
-  },
-  {
-    title: "Preserving the Papagayo Dry Forest",
-    category: "Conservation",
-    image: img3
-  }
-];
+const allJournalPosts = await getCollection('journal');
+
+const articles = allJournalPosts
+  .sort((a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf())
+  .slice(0, 3);
 ---
 
 <section class="journal-section py-32 px-4 md:px-12 bg-white relative overflow-hidden" id="journal">
@@ -34,14 +19,16 @@ const articles = [
     <div class="journal-list flex flex-col relative" role="list">
       {articles.map((article, index) => (
         <article class="journal-item group cursor-pointer border-b border-black/5 py-8 md:py-12 relative z-10" data-index={index}>
-          <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+          <a href={`/journal/${article.slug}`} class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 w-full">
             <h3 class="font-serif text-4xl md:text-6xl lg:text-7xl xl:text-8xl tracking-tight group-hover:italic transition-all duration-500 origin-left">
-              {article.title}
+              {article.data.title}
             </h3>
-            <span class="text-xs uppercase tracking-widest text-black/40 group-hover:text-black transition-colors duration-300">
-              {article.category}
-            </span>
-          </div>
+            {article.data.category && (
+              <span class="text-xs uppercase tracking-widest text-black/40 group-hover:text-black transition-colors duration-300">
+                {article.data.category}
+              </span>
+            )}
+          </a>
         </article>
       ))}
     </div>
@@ -52,8 +39,8 @@ const articles = [
     {articles.map((article, index) => (
       <div class="journal-image-wrapper absolute top-0 left-0 w-[400px] h-[500px] opacity-0 scale-95" data-index={index}>
         <Image
-          src={article.image}
-          alt={article.title}
+          src={article.data.coverImage}
+          alt={article.data.title}
           class="w-full h-full object-cover filter grayscale"
           width={400}
           height={500}
