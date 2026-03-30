@@ -2,18 +2,29 @@
 > reserve-papagayo@0.0.1 dev
 > astro dev
 
-05:39:15 [types] Generated 2ms
-05:39:15 [vite] Port 4321 is in use, trying another one...
+06:17:36 [types] Generated 2ms
 
- astro  v4.16.18 ready in 425 ms
+ astro  v4.16.18 ready in 462 ms
 
-┃ Local    http://localhost:4322/
+┃ Local    http://localhost:4321/
 ┃ Network  use --host to expose
 
-05:39:15 watching for file changes...
-05:39:54 [200] / 20ms
-05:39:58 [200] /_image 3718ms
-05:39:59 [200] /_image 4230ms
-05:39:59 [200] /_image 4295ms
-05:40:01 [200] /_image 2654ms
-05:40:02 [200] /_image 7523ms
+06:17:37 watching for file changes...
+
+ update  ▶ New version of Astro available: 6.1.1
+  Run npx @astrojs/upgrade to update
+
+06:18:25 [200] / 21ms
+06:18:26 [200] /_image 401ms
+06:18:26 [200] /_image 527ms
+06:18:26 [200] /_image 647ms
+06:18:26 [200] /_image 695ms
+06:18:27 [200] /_image 1794ms
+06:18:27 [200] /_image 1340ms
+06:18:27 [200] /_image 1414ms
+06:18:28 [200] /_image 513ms
+06:18:30 [200] /_image 4294ms
+06:18:30 [200] /_image 4409ms
+06:18:31 [200] /_image 3086ms
+06:18:32 [200] /_image 3680ms
+06:18:32 [200] /_image 6766ms
