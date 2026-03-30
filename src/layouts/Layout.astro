@@ -34,6 +34,9 @@ const { title = 'Reserve Papagayo' } = Astro.props;
         infinite: false,
       });
 
+      // Expose to window for other components to access
+      window.lenis = lenis;
+
       function raf(time: number) {
         lenis.raf(time);
         requestAnimationFrame(raf);
