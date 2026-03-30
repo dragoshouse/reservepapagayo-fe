@@ -1,0 +1,19 @@
+
+> reserve-papagayo@0.0.1 dev
+> astro dev
+
+05:39:15 [types] Generated 2ms
+05:39:15 [vite] Port 4321 is in use, trying another one...
+
+ astro  v4.16.18 ready in 425 ms
+
+┃ Local    http://localhost:4322/
+┃ Network  use --host to expose
+
+05:39:15 watching for file changes...
+05:39:54 [200] / 20ms
+05:39:58 [200] /_image 3718ms
+05:39:59 [200] /_image 4230ms
+05:39:59 [200] /_image 4295ms
+05:40:01 [200] /_image 2654ms
+05:40:02 [200] /_image 7523ms

@@ -1,20 +1,16 @@
 ---
-import '../styles/global.css';
-
-const siteName = 'Reserve Papagayo';
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Hero from '../components/Hero.astro';
+import FeatureSplit from '../components/FeatureSplit.astro';
+import Experiences from '../components/Experiences.astro';
 ---
 
-<html lang="es">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width" />
-    <meta name="description" content="Sitio oficial de Reserve Papagayo" />
-    <title>{siteName}</title>
-  </head>
-  <body>
-    <main class="grid min-h-screen place-content-center gap-3 px-6 text-center">
-      <h1 class="text-4xl font-bold tracking-tight md:text-5xl">{siteName}</h1>
-      <p class="text-lg text-slate-700">Proyecto Astro con Tailwind CSS y Google Fonts listo.</p>
-    </main>
-  </body>
-</html>
+<Layout title="Reserve Papagayo | A Private Peninsula Shaped by Nature">
+  <Header />
+  <main>
+    <Hero />
+    <FeatureSplit />
+    <Experiences />
+  </main>
+</Layout>
