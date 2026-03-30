@@ -1,0 +1,162 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { Image } from 'astro:assets';
+
+// Use getStaticPaths for Astro's static site generation (SSG)
+export async function getStaticPaths() {
+  // Mock data representing a content collection entry
+  // In a real app, you would use getCollection('journal') here
+  return [
+    {
+      params: { slug: 'the-art-of-slow-living' },
+      props: {
+        title: 'The Art of Slow Living',
+        coverImage: 'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?auto=format&fit=crop&q=80&w=2000',
+        date: 'October 12, 2024',
+        excerpt: 'A deep dive into intentional living, surrounded by nature and quiet luxury. Discover the elegance of time standing still.',
+        nextArticleTitle: 'Designing with Nature'
+      }
+    }
+  ];
+}
+
+const { title, coverImage, date, excerpt, nextArticleTitle } = Astro.props;
+---
+
+<Layout title={`${title} | Reserve Papagayo Journal`}>
+  <!-- STEP 1: THE READING PROGRESS BAR -->
+  <div class="fixed top-0 left-0 w-full h-[1px] bg-slate-900 z-50 origin-left scale-x-0" id="reading-progress"></div>
+
+  <main>
+    <!-- STEP 2: THE EDITORIAL HERO -->
+    <header class="relative w-full mb-24 md:mb-32">
+      <!-- Image Container with overflow hidden for parallax -->
+      <div class="w-full h-[60vh] md:h-[80vh] overflow-hidden">
+        <!-- We set a placeholder width and height, and use inferSize in a real scenario for remote images,
+             or pass imported image object. Using standard attributes for demo. -->
+        <Image
+          src={coverImage}
+          alt={title}
+          width={2000}
+          height={1200}
+          class="w-full h-full object-cover scale-110"
+          id="hero-image"
+        />
+      </div>
+
+      <!-- Spacious Header Content -->
+      <div class="max-w-5xl mx-auto px-6 pt-16 md:pt-24 text-center">
+        <div class="hero-content opacity-0 translate-y-8">
+          <p class="text-xs md:text-sm tracking-[0.2em] uppercase font-sans mb-6 md:mb-8 text-slate-500">
+            {date}
+          </p>
+          <h1 class="font-serif font-normal text-5xl md:text-7xl lg:text-8xl leading-[1.1] text-slate-900 mb-8 md:mb-12">
+            {title}
+          </h1>
+          <p class="font-sans text-lg md:text-2xl text-slate-600 max-w-2xl mx-auto font-light leading-relaxed">
+            {excerpt}
+          </p>
+        </div>
+      </div>
+    </header>
+
+    <!-- STEP 3: THE CONTENT BODY -->
+    <article class="max-w-2xl mx-auto px-6 mb-32 md:mb-48 editorial-content">
+      <div class="prose prose-slate prose-headings:font-serif prose-headings:font-normal prose-p:font-sans prose-p:leading-relaxed prose-p:text-slate-800 prose-img:rounded-none prose-img:w-full prose-a:underline prose-a:decoration-1">
+        <!-- We render a default slot, or placeholder markdown-like content for previewing -->
+        <slot>
+          <p>This is a placeholder for the main content. The first letter of this paragraph should be transformed into an editorial drop cap using our custom CSS rules. The rest of the text flows naturally around it, creating a classic, magazine-like reading experience.</p>
+
+          <p>In the realm of digital design, true luxury is often found not in abundance, but in restraint. It is the careful curation of space, the precise alignment of typography, and the deliberate pacing of animations that elevate an interface from merely functional to genuinely immersive.</p>
+
+          <h2>The Anatomy of Empty Space</h2>
+          <p>Whitespace is the ultimate luxury. It provides breathing room for both the content and the reader. When we strip away the superfluous—the sidebars, the excessive metadata, the competing calls to action—we are left with a pure, unadulterated focus on the narrative.</p>
+
+          <blockquote>
+            <p>"To achieve the extraordinary, one must first eliminate the unnecessary."</p>
+          </blockquote>
+
+          <p>By employing a narrow reading column, we align with the natural cadence of the human eye. The journey from the end of one line to the beginning of the next should be effortless, a gentle sweep rather than a strenuous leap. The rhythm of reading becomes almost meditative.</p>
+        </slot>
+      </div>
+    </article>
+
+    <!-- STEP 4: THE "NEXT STORY" FOOTER -->
+    <section class="w-full bg-slate-50 py-32 md:py-48 px-6 flex items-center justify-center">
+      <a href="#" class="group block text-center max-w-4xl mx-auto">
+        <p class="text-xs md:text-sm tracking-[0.2em] uppercase font-sans mb-8 text-slate-500 group-hover:text-slate-900 transition-colors duration-500">
+          Read Next
+        </p>
+        <h2 class="font-serif font-normal text-4xl md:text-6xl lg:text-7xl text-slate-900 group-hover:opacity-70 transition-opacity duration-500">
+          {nextArticleTitle}
+        </h2>
+      </a>
+    </section>
+  </main>
+</Layout>
+
+<style is:global>
+  /* Editorial Drop Cap for the first letter of the first paragraph */
+  .editorial-content .prose > p:first-of-type::first-letter {
+    float: left;
+    font-family: 'Cormorant Garamond', ui-serif, Georgia, serif;
+    font-size: 6.5rem;
+    line-height: 0.7;
+    padding-top: 0.12em;
+    padding-right: 0.1em;
+    padding-left: 0;
+    margin-bottom: -0.2em;
+    color: #0f172a; /* text-slate-900 */
+    font-weight: 400;
+  }
+</style>
+
+<script>
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+  // Make sure we run client-side only
+  if (typeof window !== 'undefined') {
+    gsap.registerPlugin(ScrollTrigger);
+
+    // Give the DOM a tiny moment to ensure Lenis and layout are ready
+    setTimeout(() => {
+      // 1. Reading Progress Bar
+      gsap.to('#reading-progress', {
+        scaleX: 1,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: document.body,
+          start: 'top top',
+          end: 'bottom bottom',
+          scrub: true, // Smooth scrubbing
+        }
+      });
+
+      // 2. Parallax Hero Image (move image up slower than the container scrolls)
+      // The image starts a bit scaled (1.1) to allow room for parallax movement
+      gsap.to('#hero-image', {
+        yPercent: 15,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: 'header',
+          start: 'top top',
+          end: 'bottom top',
+          scrub: true,
+        }
+      });
+
+      // 3. Fade up Hero Content on Load
+      gsap.to('.hero-content', {
+        y: 0,
+        opacity: 1,
+        duration: 1.5,
+        ease: 'power3.out',
+        delay: 0.1, // Slight delay for elegance
+      });
+
+      // Optional: Refresh ScrollTrigger after animations setup
+      ScrollTrigger.refresh();
+    }, 100);
+  }
+</script>
