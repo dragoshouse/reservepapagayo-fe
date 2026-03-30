@@ -1,0 +1,153 @@
+---
+import { Image } from 'astro:assets';
+import bgThePeninsula from '../assets/hero-bg.jpg';
+import bgVillas from '../assets/feature-villa.jpg';
+import bgDining from '../assets/exp-culinary.jpg';
+import bgWellness from '../assets/exp-spa.jpg';
+import bgFamily from '../assets/exp-family.jpg';
+
+const navItems = [
+  { label: 'The Peninsula', href: '/peninsula', image: bgThePeninsula },
+  { label: 'Villas & Estates', href: '/villas', image: bgVillas },
+  { label: 'Dining', href: '/dining', image: bgDining },
+  { label: 'Wellness', href: '/wellness', image: bgWellness },
+  { label: 'Family', href: '/family', image: bgFamily },
+];
+---
+
+<div id="fullscreen-menu" class="fixed inset-0 z-[100] w-full h-full overflow-hidden opacity-0 invisible pointer-events-none">
+  <!-- Background Images Layer -->
+  <div class="absolute inset-0 w-full h-full bg-black">
+    {navItems.map((item, index) => (
+      <div class="absolute inset-0 w-full h-full overflow-hidden menu-bg-container">
+        <Image
+          src={item.image}
+          alt={item.label}
+          class="w-full h-full object-cover opacity-0 menu-bg-image"
+          quality="max"
+          data-index={index}
+        />
+      </div>
+    ))}
+  </div>
+
+  <!-- Overlay to darken the background images slightly for better text readability -->
+  <div class="absolute inset-0 bg-black/40"></div>
+
+  <!-- Content Layer -->
+  <div class="relative z-10 w-full h-full flex flex-col items-center justify-center">
+    <nav class="flex flex-col items-center space-y-6 md:space-y-10">
+      {navItems.map((item, index) => (
+        <div class="overflow-hidden">
+          <a
+            href={item.href}
+            class="menu-link block text-4xl md:text-7xl lg:text-8xl text-white font-serif tracking-wide transition-[font-style] duration-500 hover:italic opacity-0 translate-y-full"
+            data-index={index}
+          >
+            {item.label}
+          </a>
+        </div>
+      ))}
+    </nav>
+  </div>
+</div>
+
+<script>
+  import gsap from 'gsap';
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const menuToggle = document.getElementById('menu-toggle');
+    const menu = document.getElementById('fullscreen-menu');
+    const links = document.querySelectorAll('.menu-link');
+    const bgImages = document.querySelectorAll('.menu-bg-image');
+    const bgContainers = document.querySelectorAll('.menu-bg-container');
+    const hamburgerLines = document.querySelectorAll('#menu-toggle span');
+
+    let isMenuOpen = false;
+
+    // Timeline for menu open/close
+    const tl = gsap.timeline({ paused: true });
+
+    // Initial state setup for clip path
+    gsap.set(menu, { clipPath: 'polygon(0% 0%, 100% 0%, 100% 0%, 0% 0%)' });
+    gsap.set(bgImages[0], { opacity: 0.6, scale: 1 }); // Default background
+
+    // Menu Reveal Animation
+    tl.to(menu, {
+      clipPath: 'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)',
+      duration: 1.2,
+      ease: 'power4.inOut',
+      onStart: () => {
+        gsap.set(menu, { autoAlpha: 1 });
+        menu.classList.remove('pointer-events-none');
+        menu.classList.add('pointer-events-auto');
+        if (window.lenis) window.lenis.stop(); // Stop scroll
+      },
+      onReverseComplete: () => {
+        gsap.set(menu, { autoAlpha: 0 });
+        menu.classList.add('pointer-events-none');
+        menu.classList.remove('pointer-events-auto');
+        if (window.lenis) window.lenis.start(); // Start scroll
+      }
+    })
+    // Links entrance
+    .to(links, {
+      y: '0%',
+      opacity: 1,
+      duration: 1,
+      stagger: 0.1,
+      ease: 'power3.out'
+    }, '-=0.6');
+
+    // Hamburger icon animation timeline
+    const hamburgerTl = gsap.timeline({ paused: true });
+    hamburgerTl
+      .to(hamburgerLines[0], { y: 3.75, rotation: 45, duration: 0.3, ease: 'power2.inOut' }, 0)
+      .to(hamburgerLines[1], { y: -3.75, rotation: -45, duration: 0.3, ease: 'power2.inOut' }, 0);
+
+    // Toggle menu
+    menuToggle?.addEventListener('click', () => {
+      isMenuOpen = !isMenuOpen;
+      if (isMenuOpen) {
+        tl.play();
+        hamburgerTl.play();
+      } else {
+        tl.reverse();
+        hamburgerTl.reverse();
+      }
+    });
+
+    // Hover effect on links
+    let activeIndex = 0; // The first item is default
+
+    links.forEach((link) => {
+      link.addEventListener('mouseenter', (e) => {
+        const index = parseInt((e.target as HTMLElement).dataset.index || '0');
+
+        if (index === activeIndex) return;
+
+        // Fade out previous image
+        gsap.to(bgImages[activeIndex], {
+          opacity: 0,
+          scale: 1,
+          duration: 0.8,
+          ease: 'power2.inOut'
+        });
+
+        // Fade in new image and slowly scale it up
+        gsap.fromTo(bgImages[index],
+          { opacity: 0, scale: 1 },
+          {
+            opacity: 0.6,
+            scale: 1.05,
+            duration: 2,
+            ease: 'power1.out',
+            overwrite: 'auto'
+          }
+        );
+
+        activeIndex = index;
+      });
+    });
+  });
+</script>
