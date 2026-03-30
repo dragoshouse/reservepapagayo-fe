@@ -5,6 +5,7 @@ export default {
     extend: {
       fontFamily: {
         sans: ['InterVariable', 'system-ui', 'sans-serif'],
+        serif: ['"Cormorant Garamond"', 'ui-serif', 'Georgia', 'serif'],
       },
     },
   },
