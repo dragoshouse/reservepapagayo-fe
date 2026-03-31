@@ -1,0 +1,15 @@
+<<<<<<< SEARCH
+      <div id="logo-main-container" class="h-full">
+        <Image src={logoMain} alt="Experience Papagayo" class="h-full w-auto object-contain" />
+      </div>
+      <div id="logo-arena-container" class="absolute inset-0 h-full opacity-0 hidden">
+        <Image src={logoArena} alt="Experience Papagayo" class="h-full w-auto object-contain" />
+      </div>
+=======
+      <div id="logo-main-container" class="h-full">
+        <Image src={logoMain} alt="Experience Papagayo" class="h-full w-auto object-contain" />
+      </div>
+      <div id="logo-arena-container" class="absolute left-0 top-0 h-full opacity-0 pointer-events-none">
+        <Image src={logoArena} alt="Experience Papagayo" class="h-full w-auto object-contain" />
+      </div>
+>>>>>>> REPLACE
