@@ -16,15 +16,15 @@ const articles = allJournalPosts
       <a href="#" class="text-sm border-b border-black pb-1 hover:text-black/60 transition-colors">Read All</a>
     </header>
 
-    <div class="journal-list flex flex-col relative" role="list">
+    <div class="journal-list flex flex-col relative group/list" role="list">
       {articles.map((article, index) => (
-        <article class="journal-item group cursor-pointer border-b border-black/5 py-8 md:py-12 relative z-10" data-index={index}>
+        <article class="journal-item group/item cursor-pointer border-b border-black/5 py-8 md:py-12 relative z-10 transition-opacity duration-500 hover:!opacity-100 group-hover/list:opacity-30" data-index={index}>
           <a href={`/journal/${article.slug}`} class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 w-full">
-            <h3 class="font-serif text-4xl md:text-6xl lg:text-7xl xl:text-8xl tracking-tight group-hover:italic transition-all duration-500 origin-left">
+            <h3 class="font-serif text-4xl md:text-6xl lg:text-7xl xl:text-8xl tracking-tight group-hover/item:italic transition-all duration-500 origin-left">
               {article.data.title}
             </h3>
             {article.data.category && (
-              <span class="text-xs uppercase tracking-widest text-black/40 group-hover:text-black transition-colors duration-300">
+              <span class="text-xs uppercase tracking-widest text-black/40 group-hover/item:text-black transition-colors duration-300">
                 {article.data.category}
               </span>
             )}
@@ -33,127 +33,4 @@ const articles = allJournalPosts
       ))}
     </div>
   </div>
-
-  <!-- Hidden Images for Hover Effect -->
-  <div class="journal-images-container pointer-events-none fixed top-0 left-0 w-full h-full z-20 overflow-hidden mix-blend-difference" style="display: none;">
-    {articles.map((article, index) => (
-      <div class="journal-image-wrapper absolute top-0 left-0 w-[400px] h-[500px] opacity-0 scale-95" data-index={index}>
-        <Image
-          src={article.data.coverImage}
-          alt={article.data.title}
-          class="w-full h-full object-cover filter grayscale"
-          width={400}
-          height={500}
-        />
-      </div>
-    ))}
-  </div>
 </section>
-
-<style>
-  /* Base styles for the journal section */
-</style>
-
-<script>
-  import { gsap } from 'gsap';
-
-  // We wrap this in a function to run after Astro page load
-  function initJournalInteraction() {
-    const items = document.querySelectorAll('.journal-item');
-    const imageContainer = document.querySelector('.journal-images-container') as HTMLElement;
-    const images = document.querySelectorAll('.journal-image-wrapper');
-
-    if (!items.length || !imageContainer || !images.length) return;
-
-    // Show the container but keep images hidden (opacity 0)
-    imageContainer.style.display = 'block';
-
-    let currentImage: Element | null = null;
-
-    // Mouse position tracker
-    let mouseX = 0;
-    let mouseY = 0;
-    let isHovering = false;
-
-    // Quick setters for GSAP for performance
-    const xSetters: any[] = [];
-    const ySetters: any[] = [];
-
-    images.forEach((img, i) => {
-      xSetters.push(gsap.quickSetter(img, "x", "px"));
-      ySetters.push(gsap.quickSetter(img, "y", "px"));
-
-      // Center the image transform origin
-      gsap.set(img, { xPercent: -50, yPercent: -50 });
-    });
-
-    window.addEventListener('mousemove', (e) => {
-      mouseX = e.clientX;
-      mouseY = e.clientY;
-
-      // Update position of the currently active image if hovering
-      if (isHovering && currentImage !== null) {
-        const index = parseInt(currentImage.getAttribute('data-index') || '0');
-        // Add a slight delay/smoothness to the follow effect
-        gsap.to(currentImage, {
-          x: mouseX,
-          y: mouseY,
-          duration: 0.8,
-          ease: "power3.out",
-          overwrite: "auto"
-        });
-      }
-    });
-
-    items.forEach((item, index) => {
-      const img = images[index];
-
-      item.addEventListener('mouseenter', () => {
-        isHovering = true;
-        currentImage = img;
-
-        // Immediately set position to avoid jumping from top-left
-        gsap.set(img, { x: mouseX, y: mouseY });
-
-        // Fade in and scale up slightly
-        gsap.to(img, {
-          opacity: 1,
-          scale: 1,
-          duration: 0.5,
-          ease: "power2.out",
-          overwrite: "auto"
-        });
-
-        // Push other list items away slightly (optional nice effect)
-        items.forEach((otherItem, otherIndex) => {
-          if (index !== otherIndex) {
-            gsap.to(otherItem, { opacity: 0.3, duration: 0.4 });
-          }
-        });
-      });
-
-      item.addEventListener('mouseleave', () => {
-        isHovering = false;
-
-        // Fade out and scale down slightly
-        gsap.to(img, {
-          opacity: 0,
-          scale: 0.95,
-          duration: 0.4,
-          ease: "power2.in",
-          overwrite: "auto"
-        });
-
-        // Restore other list items
-        items.forEach(otherItem => {
-          gsap.to(otherItem, { opacity: 1, duration: 0.4 });
-        });
-      });
-    });
-  }
-
-  // Initialize on page load
-  document.addEventListener('astro:page-load', initJournalInteraction);
-  // Also initialize immediately for the first load if it's not a SPA transition
-  initJournalInteraction();
-</script>
