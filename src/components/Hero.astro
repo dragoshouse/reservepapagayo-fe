@@ -4,6 +4,9 @@ import heroImage from '../assets/hero-bg.jpg';
 ---
 
 <section id="hero" class="relative h-screen w-full overflow-hidden bg-black flex items-center justify-center">
+  <!-- Top dark gradient overlay for header contrast -->
+  <div class="absolute top-0 left-0 w-full h-32 md:h-48 bg-gradient-to-b from-black/60 to-transparent z-20 pointer-events-none"></div>
+
   <div class="absolute inset-0 z-0 h-[120%] w-full" data-hero-bg>
     <Picture
       src={heroImage}
