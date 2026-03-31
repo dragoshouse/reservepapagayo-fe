@@ -1,0 +1,159 @@
+---
+import { Image } from 'astro:assets';
+import featureVilla from '../assets/feature-villa.jpg';
+import expCulinary from '../assets/exp-culinary.jpg';
+import expFamily from '../assets/exp-family.jpg';
+import expSpa from '../assets/exp-spa.jpg';
+
+const villas = [
+  {
+    name: "Five-Bedroom Estate at Prieta Bay",
+    image: featureVilla,
+    alt: "Luxurious five-bedroom estate at Prieta Bay"
+  },
+  {
+    name: "Ocean View Canopy Villa",
+    image: expCulinary,
+    alt: "Stunning ocean view canopy villa with outdoor dining"
+  },
+  {
+    name: "Tropical Jungle Retreat",
+    image: expFamily,
+    alt: "Private tropical jungle retreat perfect for families"
+  },
+  {
+    name: "Cliffside Sanctuary",
+    image: expSpa,
+    alt: "Serene cliffside sanctuary with private spa amenities"
+  }
+];
+---
+
+<section id="villa-collection-section" class="relative h-screen w-full overflow-hidden bg-black">
+  <!-- Sticky Container that gets pinned -->
+  <div id="villa-pin-container" class="h-screen w-full flex items-center overflow-hidden">
+
+    <!-- The horizontal track that moves left -->
+    <div id="villa-track" class="flex flex-nowrap w-[max-content] h-[80vh] items-center px-[5vw] md:px-[10vw] gap-8 md:gap-16">
+
+      {villas.map((villa, index) => (
+        <article
+          class="villa-card relative w-[85vw] md:w-[45vw] h-full flex-shrink-0 overflow-hidden cursor-pointer group"
+          data-index={index}
+        >
+          <!-- Inner wrapper for Parallax Effect -->
+          <div class="villa-image-wrapper absolute inset-0 w-full h-full scale-[1.1]">
+            <Image
+              src={villa.image}
+              alt={villa.alt}
+              class="w-full h-full object-cover"
+              loading="lazy"
+            />
+            <!-- Dark Overlay for un-focused cards handled by JS, base overlay for text readability -->
+            <div class="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-500 z-10 pointer-events-none"></div>
+          </div>
+
+          <!-- Bottom Text Area with Gradient -->
+          <div class="absolute bottom-0 left-0 w-full p-6 md:p-10 bg-gradient-to-t from-black/80 via-black/40 to-transparent z-20 flex flex-col justify-end">
+            <h3 class="text-white font-serif text-2xl md:text-4xl leading-tight mb-4 transform translate-y-4 opacity-80 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
+              {villa.name}
+            </h3>
+
+            <button class="flex items-center text-white/90 text-sm tracking-widest uppercase opacity-0 transform translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 delay-100 focus:outline-none">
+              <span class="mr-3">Discover</span>
+              <span class="block w-8 h-[1px] bg-white"></span>
+            </button>
+          </div>
+        </article>
+      ))}
+
+    </div>
+  </div>
+</section>
+
+<script>
+  import { gsap } from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  const section = document.getElementById("villa-collection-section");
+  const track = document.getElementById("villa-track");
+  const cards = document.querySelectorAll(".villa-card");
+
+  if (section && track && cards.length > 0) {
+
+    // 1. Horizontal Scroll Animation
+    const scrollTween = gsap.to(track, {
+      x: () => -(track.scrollWidth - window.innerWidth),
+      ease: "none",
+      scrollTrigger: {
+        trigger: section,
+        pin: true,
+        scrub: 1, // Smooth scrubbing
+        start: "top top",
+        end: () => `+=${track.scrollWidth - window.innerWidth}`,
+        invalidateOnRefresh: true // Recalculate on resize
+      }
+    });
+
+    // 2. Inner Image Parallax (moving image opposite to scroll direction slightly)
+    cards.forEach((card) => {
+      const imageWrapper = card.querySelector(".villa-image-wrapper");
+
+      if (imageWrapper) {
+         gsap.to(imageWrapper, {
+          xPercent: 20, // Move image right as track moves left
+          ease: "none",
+          scrollTrigger: {
+            trigger: section, // Tie to the section pinning
+            start: "top top",
+            end: () => `+=${track.scrollWidth - window.innerWidth}`,
+            scrub: true,
+          }
+        });
+      }
+    });
+
+    // 3. Card Focus Effect (Scale and Brightness based on position)
+    // We update this dynamically on update of the main scrollTrigger
+    ScrollTrigger.create({
+      trigger: section,
+      start: "top top",
+      end: () => `+=${track.scrollWidth - window.innerWidth}`,
+      onUpdate: (self) => {
+        const viewportCenter = window.innerWidth / 2;
+
+        cards.forEach(card => {
+          const rect = card.getBoundingClientRect();
+          const cardCenter = rect.left + rect.width / 2;
+
+          // Calculate distance from center of viewport
+          const distance = Math.abs(viewportCenter - cardCenter);
+          // Normalize distance (0 when perfectly centered, increasing as it moves away)
+          // Threshold where effect maxes out (e.g., full card width)
+          const threshold = rect.width;
+
+          let progress = 1 - (distance / threshold);
+          // Clamp progress between 0 and 1
+          progress = Math.max(0, Math.min(1, progress));
+
+          // Apply scale and opacity/brightness based on progress
+          // Centered = scale 1.02, opacity 1
+          // Far away = scale 1.0, opacity 0.5
+
+          const scale = 1 + (0.02 * progress);
+          const opacity = 0.5 + (0.5 * progress);
+
+          gsap.set(card, {
+             scale: scale,
+             opacity: opacity
+          });
+        });
+      }
+    });
+
+    // Initialize initial state for cards
+    gsap.set(cards, { opacity: 0.5, scale: 1 });
+  }
+</script>
