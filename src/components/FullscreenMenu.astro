@@ -34,6 +34,11 @@ const navItems = [
   <!-- Overlay to darken the background images slightly for better text readability -->
   <div class="absolute inset-0 bg-black/40"></div>
 
+  <!-- Close Button -->
+  <button id="menu-close" class="absolute top-6 right-6 md:top-12 md:right-12 z-[110] text-white font-sans text-sm tracking-[0.2em] uppercase cursor-pointer opacity-0 pointer-events-none focus:outline-none" style="pointer-events: auto;">
+    Close
+  </button>
+
   <!-- Content Layer -->
   <div class="relative z-10 w-full h-full flex flex-col items-center justify-center">
     <nav class="flex flex-col items-center space-y-6 md:space-y-10">
@@ -62,6 +67,7 @@ const navItems = [
     const bgImages = document.querySelectorAll('.menu-bg-image');
     const bgContainers = document.querySelectorAll('.menu-bg-container');
     const hamburgerLines = document.querySelectorAll('#menu-toggle span');
+    const menuClose = document.getElementById('menu-close');
 
     let isMenuOpen = false;
 
@@ -97,7 +103,13 @@ const navItems = [
       duration: 1,
       stagger: 0.1,
       ease: 'power3.out'
-    }, '-=0.6');
+    }, '-=0.6')
+    // Close button entrance
+    .to(menuClose, {
+      autoAlpha: 1,
+      duration: 0.5,
+      ease: 'power2.out'
+    }, '-=0.5');
 
     // Hamburger icon animation timeline
     const hamburgerTl = gsap.timeline({ paused: true });
@@ -115,6 +127,13 @@ const navItems = [
         tl.reverse();
         hamburgerTl.reverse();
       }
+    });
+
+    // Close menu via Close button
+    menuClose?.addEventListener('click', () => {
+      isMenuOpen = false;
+      tl.reverse();
+      hamburgerTl.reverse();
     });
 
     // Hover effect on links
