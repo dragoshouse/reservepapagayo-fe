@@ -8,10 +8,10 @@ import logoArena from '../assets/logo-arena.png';
   <div class="flex items-center h-16 md:h-24">
     <a href="/" class="relative block h-full w-auto hover:opacity-80 transition-opacity">
       <div id="logo-wrapper" class="relative block h-full w-auto origin-left transition-transform duration-300">
-        <div id="logo-main-container" class="h-full transition-opacity duration-300">
+        <div id="logo-main-container" class="h-full opacity-100 block transition-opacity duration-300">
           <Image src={logoMain} alt="Experience Papagayo" class="h-full w-auto object-contain" />
         </div>
-        <div id="logo-arena-container" class="absolute left-0 top-0 h-full w-full opacity-0 pointer-events-none transition-opacity duration-300">
+        <div id="logo-arena-container" class="absolute left-0 top-0 h-full w-full opacity-0 hidden pointer-events-none transition-opacity duration-300">
           <Image src={logoArena} alt="Experience Papagayo" class="h-full w-auto object-contain" />
         </div>
       </div>
@@ -67,17 +67,21 @@ import logoArena from '../assets/logo-arena.png';
     });
 
     function applyTheme(theme: string) {
+      console.log("Theme switched to:", theme);
       if (theme === 'dark') {
         gsap.to(header, { backgroundColor: "transparent", borderBottomColor: "transparent", duration: 0.3, ease: "power2.out" });
-        gsap.to(logoArena, { opacity: 0, duration: 0.3 });
-        gsap.to(logoMain, { opacity: 1, duration: 0.3 });
+        gsap.to(logoArena, { opacity: 0, display: "none", duration: 0.3 });
+        gsap.to(logoMain, { opacity: 1, display: "block", duration: 0.3 });
         gsap.to(menuLines, { backgroundColor: "#ffffff", duration: 0.3 });
       } else if (theme === 'light') {
         gsap.to(header, { backgroundColor: "#ffffff", borderBottomColor: "rgba(0,0,0,0.1)", duration: 0.3, ease: "power2.out" });
-        gsap.to(logoMain, { opacity: 0, duration: 0.3 });
-        gsap.to(logoArena, { opacity: 1, duration: 0.3 });
+        gsap.to(logoMain, { opacity: 0, display: "none", duration: 0.3 });
+        gsap.to(logoArena, { opacity: 1, display: "block", duration: 0.3 });
         gsap.to(menuLines, { backgroundColor: "#000000", duration: 0.3 });
       }
     }
+
+    ScrollTrigger.refresh();
+    console.log("Header Theme System: Initialized");
   }
 </script>
