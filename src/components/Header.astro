@@ -37,96 +37,47 @@ import logoArena from '../assets/logo-arena.png';
   const menuLines = document.querySelectorAll(".menu-line");
 
   if (header && logoWrapper && logoMain && logoArena) {
-    // 1. Sticky Header Behavior
+    const sections = gsap.utils.toArray('[data-theme]');
+
+    // Scale and padding effect happens once on scroll down
     ScrollTrigger.create({
       start: "top -50",
       end: 99999,
       toggleClass: {className: "is-sticky", targets: header},
       onEnter: () => {
-        // Sticky State: White bg, smaller padding, scale down logo
-        gsap.to(header, { backgroundColor: "#ffffff", borderBottomColor: "rgba(0,0,0,0.1)", paddingTop: "1rem", paddingBottom: "1rem", duration: 0.3, ease: "power2.out" });
+        gsap.to(header, { paddingTop: "1rem", paddingBottom: "1rem", duration: 0.3, ease: "power2.out" });
         gsap.to(logoWrapper, { scale: 0.75, duration: 0.3, ease: "power2.out" });
-
-        // Hide Main Logo
-        gsap.to(logoMain, { opacity: 0, duration: 0.3 });
-
-        // Show Arena Logo
-        gsap.to(logoArena, { opacity: 1, duration: 0.3 });
-
-        gsap.to(menuLines, { backgroundColor: "#000000", duration: 0.3 });
       },
       onLeaveBack: () => {
-        // Start State: Transparent bg, normal padding, normal logo size
-        gsap.to(header, { backgroundColor: "transparent", borderBottomColor: "transparent", paddingTop: "1.5rem", paddingBottom: "1.5rem", duration: 0.3, ease: "power2.out" });
+        gsap.to(header, { paddingTop: "1.5rem", paddingBottom: "1.5rem", duration: 0.3, ease: "power2.out" });
         gsap.to(logoWrapper, { scale: 1, duration: 0.3, ease: "power2.out" });
-
-        // Hide Arena Logo
-        gsap.to(logoArena, { opacity: 0, duration: 0.3 });
-
-        // Show Main Logo
-        gsap.to(logoMain, { opacity: 1, duration: 0.3 });
-
-        gsap.to(menuLines, { backgroundColor: "#ffffff", duration: 0.3 });
       }
     });
 
-    // 2. Villa Collection Reversion Behavior
-    ScrollTrigger.create({
-      trigger: "#villa-collection-section",
-      start: "top 50px", // When the section reaches near the top (where header is)
-      end: "bottom top", // When the section leaves the viewport
-      onEnter: () => {
-        // Revert header to transparent, hide Arena logo, show Main logo
-        gsap.to(header, { backgroundColor: "transparent", borderBottomColor: "transparent", paddingTop: "1.5rem", paddingBottom: "1.5rem", duration: 0.3, ease: "power2.out" });
-        gsap.to(logoWrapper, { scale: 1, duration: 0.3, ease: "power2.out" });
-        gsap.to(logoArena, { opacity: 0, duration: 0.3 });
-        gsap.to(logoMain, { opacity: 1, duration: 0.3 });
-        gsap.to(menuLines, { backgroundColor: "#ffffff", duration: 0.3 });
-      },
-      onLeave: () => {
-        // Return to sticky state (white background, Arena logo)
-        gsap.to(header, { backgroundColor: "#ffffff", borderBottomColor: "rgba(0,0,0,0.1)", paddingTop: "1rem", paddingBottom: "1rem", duration: 0.3, ease: "power2.out" });
-        gsap.to(logoWrapper, { scale: 0.75, duration: 0.3, ease: "power2.out" });
-        gsap.to(logoMain, { opacity: 0, duration: 0.3 });
-        gsap.to(logoArena, { opacity: 1, duration: 0.3 });
-        gsap.to(menuLines, { backgroundColor: "#000000", duration: 0.3 });
-      },
-      onEnterBack: () => {
-        // Revert header to transparent, hide Arena logo, show Main logo
-        gsap.to(header, { backgroundColor: "transparent", borderBottomColor: "transparent", paddingTop: "1.5rem", paddingBottom: "1.5rem", duration: 0.3, ease: "power2.out" });
-        gsap.to(logoWrapper, { scale: 1, duration: 0.3, ease: "power2.out" });
-        gsap.to(logoArena, { opacity: 0, duration: 0.3 });
-        gsap.to(logoMain, { opacity: 1, duration: 0.3 });
-        gsap.to(menuLines, { backgroundColor: "#ffffff", duration: 0.3 });
-      },
-      onLeaveBack: () => {
-        // Return to sticky state (white background, Arena logo)
-        gsap.to(header, { backgroundColor: "#ffffff", borderBottomColor: "rgba(0,0,0,0.1)", paddingTop: "1rem", paddingBottom: "1rem", duration: 0.3, ease: "power2.out" });
-        gsap.to(logoWrapper, { scale: 0.75, duration: 0.3, ease: "power2.out" });
-        gsap.to(logoMain, { opacity: 0, duration: 0.3 });
-        gsap.to(logoArena, { opacity: 1, duration: 0.3 });
-        gsap.to(menuLines, { backgroundColor: "#000000", duration: 0.3 });
-      }
+    sections.forEach((sec: any) => {
+      const theme = sec.getAttribute('data-theme');
+
+      ScrollTrigger.create({
+        trigger: sec,
+        start: "top 80px", // Offset for header height
+        end: "bottom 80px",
+        onEnter: () => applyTheme(theme),
+        onEnterBack: () => applyTheme(theme)
+      });
     });
 
-    // 3. Footer Reversion Behavior
-    ScrollTrigger.create({
-      trigger: "#footer-spacer",
-      start: "top bottom", // when the top of the spacer hits the bottom of the viewport
-      onEnter: () => {
-        // Revert to transparent background and white logo to match dark footer
+    function applyTheme(theme: string) {
+      if (theme === 'dark') {
         gsap.to(header, { backgroundColor: "transparent", borderBottomColor: "transparent", duration: 0.3, ease: "power2.out" });
         gsap.to(logoArena, { opacity: 0, duration: 0.3 });
         gsap.to(logoMain, { opacity: 1, duration: 0.3 });
         gsap.to(menuLines, { backgroundColor: "#ffffff", duration: 0.3 });
-      },
-      onLeaveBack: () => {
-        // Return to sticky/white state
+      } else if (theme === 'light') {
         gsap.to(header, { backgroundColor: "#ffffff", borderBottomColor: "rgba(0,0,0,0.1)", duration: 0.3, ease: "power2.out" });
         gsap.to(logoMain, { opacity: 0, duration: 0.3 });
         gsap.to(logoArena, { opacity: 1, duration: 0.3 });
         gsap.to(menuLines, { backgroundColor: "#000000", duration: 0.3 });
       }
-    });
+    }
   }
 </script>
