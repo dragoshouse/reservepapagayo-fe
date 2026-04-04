@@ -13,16 +13,16 @@ import Footer from '../components/Footer.astro';
   <FullscreenMenu />
 
   <div class="main-content-wrap relative z-10 bg-[#FAF9F6]" data-theme="light">
-    <main class="pt-40 pb-24 px-6 md:px-12 lg:px-24 min-h-screen flex flex-col justify-center">
+    <main class="pt-28 pb-20 px-5 sm:px-6 md:px-12 lg:px-24 min-h-screen flex flex-col justify-center">
       <div class="max-w-4xl mx-auto w-full">
         <!-- Headline -->
-        <h1 class="gsap-reveal text-5xl md:text-7xl lg:text-8xl font-serif text-slate-900 leading-tight mb-20 text-center uppercase tracking-wide">
+        <h1 class="gsap-reveal text-3xl sm:text-4xl md:text-7xl lg:text-8xl font-serif text-slate-900 leading-tight sm:leading-[1.15] mb-12 sm:mb-16 md:mb-20 text-center uppercase tracking-[0.04em] sm:tracking-wide">
           Your Costa Rica Experience<br/>
-          <span class="italic font-light lowercase text-4xl md:text-6xl lg:text-7xl">begins with a conversation</span>
+          <span class="italic font-light lowercase text-2xl sm:text-3xl md:text-6xl lg:text-7xl inline-block mt-2 sm:mt-0">begins with a conversation</span>
         </h1>
 
         <!-- Form Container -->
-        <form class="max-w-2xl mx-auto space-y-12">
+        <form class="max-w-2xl mx-auto space-y-9 sm:space-y-12">
           <!-- Name -->
           <div class="relative gsap-reveal">
             <input type="text" id="name" name="name" class="peer w-full bg-transparent border-b border-gray-300 py-4 text-lg text-slate-900 focus:outline-none focus:border-slate-900 transition-colors placeholder-transparent" placeholder="Name" required />
@@ -48,15 +48,15 @@ import Footer from '../components/Footer.astro';
           </div>
 
           <!-- Submit Button -->
-          <div class="pt-8 flex flex-col items-center gsap-reveal">
-            <button type="submit" class="group relative px-12 py-4 rounded-full border border-slate-900 text-slate-900 overflow-hidden transition-colors duration-300 hover:text-white">
+          <div class="pt-6 sm:pt-8 flex flex-col items-center gsap-reveal">
+            <button type="submit" class="group relative w-full sm:w-auto px-8 sm:px-12 py-4 rounded-full border border-slate-900 text-slate-900 overflow-hidden transition-colors duration-300 hover:text-white">
               <span class="relative z-10 font-sans tracking-widest text-sm uppercase">Begin Your Stay</span>
               <div class="absolute inset-0 bg-slate-900 translate-y-[101%] group-hover:translate-y-0 transition-transform duration-300 ease-out z-0"></div>
             </button>
           </div>
 
           <!-- Secondary CTA -->
-          <div class="pt-12 text-center gsap-reveal flex flex-col items-center">
+          <div class="pt-8 sm:pt-12 text-center gsap-reveal flex flex-col items-center">
             <p class="text-sm text-gray-500 mb-4 font-sans tracking-wide">Please contact us directly for immediate assistance</p>
             <a href="https://wa.me/1234567890" target="_blank" rel="noopener noreferrer" class="inline-flex items-center space-x-2 text-slate-900 hover:opacity-70 transition-opacity">
               <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
