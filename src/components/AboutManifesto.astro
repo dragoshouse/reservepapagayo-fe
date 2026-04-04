@@ -1,0 +1,54 @@
+---
+---
+
+<section id="about-manifesto" class="py-32 md:py-48 px-6 bg-white flex flex-col items-center justify-center relative z-10" data-theme="light">
+  <div class="max-w-4xl mx-auto text-center font-serif text-3xl md:text-5xl lg:text-6xl leading-tight md:leading-tight lg:leading-tight text-black flex flex-col gap-8 md:gap-12">
+    <div class="overflow-hidden">
+      <p class="manifesto-line translate-y-[100%]">
+        Peninsula Papagayo is one of the most
+      </p>
+    </div>
+    <div class="overflow-hidden">
+      <p class="manifesto-line translate-y-[100%]">
+        exclusive private sanctuaries in the world.
+      </p>
+    </div>
+    <div class="overflow-hidden">
+      <p class="manifesto-line translate-y-[100%]">
+        But an extraordinary location
+      </p>
+    </div>
+    <div class="overflow-hidden">
+      <p class="manifesto-line translate-y-[100%]">
+        is only the beginning.
+      </p>
+    </div>
+    <div class="overflow-hidden">
+      <p class="manifesto-line translate-y-[100%] mt-8 text-xl md:text-2xl lg:text-3xl font-light text-gray-600">
+        We believe true hospitality is invisible. It’s anticipating needs before they are spoken. It’s the seamless orchestration of your itinerary, the private chef who knows your dietary preferences, and the concierge who remembers exactly how you take your coffee on day two.
+      </p>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  const lines = gsap.utils.toArray('.manifesto-line');
+
+  if (lines.length > 0) {
+    gsap.to(lines, {
+      y: "0%",
+      duration: 1.2,
+      ease: 'power4.out',
+      stagger: 0.15,
+      scrollTrigger: {
+        trigger: '#about-manifesto',
+        start: 'top 70%',
+      }
+    });
+  }
+</script>
