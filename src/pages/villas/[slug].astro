@@ -1,0 +1,240 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import FullscreenMenu from '../../components/FullscreenMenu.astro';
+import CTA from '../../components/CTA.astro';
+import Footer from '../../components/Footer.astro';
+import { Image } from 'astro:assets';
+
+// Dummy imports for images
+import featureVilla from '../../assets/feature-villa.jpg';
+import expCulinary from '../../assets/exp-culinary.jpg';
+import expSpa from '../../assets/exp-spa.jpg';
+import expFamily from '../../assets/exp-family.jpg';
+
+export function getStaticPaths() {
+  const dummyVillas = [
+    {
+      slug: 'the-hive',
+      name: 'The Hive',
+      heroImage: featureVilla,
+      overview: 'An architectural masterpiece embedded in the canopy. The Hive redefines luxury with its sweeping ocean views, unprecedented privacy, and seamless integration with the natural world.',
+      gallery: [expCulinary, expSpa, expFamily],
+      specs: [
+        { label: 'Total Area', value: '8,500 sq ft' },
+        { label: 'Bedrooms', value: '6' },
+        { label: 'Bathrooms', value: '7.5' },
+        { label: 'Pool', value: 'Infinity Edge' },
+        { label: 'Staff', value: 'Dedicated Team' }
+      ]
+    },
+    {
+      slug: 'esmeralda',
+      name: 'Esmeralda',
+      heroImage: expCulinary,
+      overview: 'A sanctuary of tranquility featuring lush tropical surroundings and expansive indoor-outdoor living spaces. Esmeralda is where modern design meets the raw beauty of Costa Rica.',
+      gallery: [featureVilla, expSpa, expFamily],
+      specs: [
+        { label: 'Total Area', value: '6,200 sq ft' },
+        { label: 'Bedrooms', value: '5' },
+        { label: 'Bathrooms', value: '5.5' },
+        { label: 'Pool', value: 'Private Plunge' },
+        { label: 'Staff', value: 'On-Call Concierge' }
+      ]
+    }
+  ];
+
+  return dummyVillas.map((villa) => {
+    return {
+      params: { slug: villa.slug },
+      props: { villa },
+    };
+  });
+}
+
+const { villa } = Astro.props;
+---
+
+<Layout title={`${villa.name} | Experience Papagayo`}>
+  <Header />
+  <FullscreenMenu />
+
+  <div class="main-content-wrap relative z-10 bg-white">
+    <main>
+
+      <!-- Section 1: Immersive Hero -->
+      <section class="villa-hero relative h-screen w-full overflow-hidden flex items-center justify-center" data-theme="dark">
+        <!-- Background Image -->
+        <div class="absolute inset-0 w-full h-full">
+          <Image
+            src={villa.heroImage}
+            alt={villa.name}
+            class="w-full h-full object-cover scale-[1.05]"
+            loading="eager"
+          />
+          <!-- Dark gradient overlay top and bottom -->
+          <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-black/20 to-black/60"></div>
+        </div>
+
+        <!-- Centered Title -->
+        <div class="relative z-10 text-center px-4">
+          <h1 class="villa-title text-6xl md:text-[8vw] font-serif text-[#F5F5F0] tracking-tight leading-none opacity-0 translate-y-10">
+            {villa.name}
+          </h1>
+        </div>
+      </section>
+
+      <!-- Section 2: The Overview -->
+      <section class="villa-overview py-32 md:py-48 px-6 md:px-12 bg-white flex items-center justify-center min-h-[70vh]" data-theme="light">
+        <div class="max-w-4xl mx-auto text-center">
+          <h2 class="text-sm tracking-[0.2em] uppercase font-bold text-black/40 mb-12">At a Glance</h2>
+          <p class="villa-manifesto-text text-3xl md:text-5xl lg:text-6xl font-serif leading-tight md:leading-snug text-[#1A1A1A]">
+            {villa.overview}
+          </p>
+        </div>
+      </section>
+
+      <!-- Section 3: The Gallery (Pinned Horizontal Scroll) -->
+      <section id="villa-gallery-section" class="relative h-screen w-full overflow-hidden bg-white" data-theme="light">
+        <div id="villa-gallery-container" class="h-screen w-full flex items-center overflow-hidden">
+          <div id="villa-gallery-track" class="flex flex-nowrap w-[max-content] h-[80vh] items-center px-[5vw] gap-8 md:gap-16">
+            {villa.gallery.map((img, index) => (
+              <article class="gallery-card relative w-[85vw] md:w-[60vw] h-full flex-shrink-0 overflow-hidden">
+                <Image
+                  src={img}
+                  alt={`${villa.name} Gallery ${index + 1}`}
+                  class="gallery-image w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 4: Specifications Grid -->
+      <section class="villa-specs py-32 md:py-48 px-6 md:px-12 bg-white" data-theme="light">
+        <div class="max-w-7xl mx-auto">
+          <h2 class="text-4xl md:text-5xl font-serif text-[#1A1A1A] mb-16 md:mb-24">Specifications</h2>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-16">
+            {villa.specs.map((spec) => (
+              <div class="spec-item border-t border-slate-300 pt-6">
+                <span class="block text-xs tracking-widest uppercase font-semibold text-black/50 mb-2">
+                  {spec.label}
+                </span>
+                <span class="block text-2xl md:text-3xl font-serif text-[#1A1A1A]">
+                  {spec.value}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <!-- CTA -->
+      <CTA title={`Experience <br/>${villa.name}`} buttonText="Reserve" />
+    </main>
+  </div>
+
+  <Footer />
+  <div id="footer-spacer"></div>
+</Layout>
+
+<script>
+  import { gsap } from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+  import SplitType from "split-type";
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  function initVillaTemplate() {
+    // 1. Hero Title Fade-Up
+    const title = document.querySelector('.villa-title');
+    if (title) {
+      gsap.to(title, {
+        opacity: 1,
+        y: 0,
+        duration: 1.5,
+        ease: "power3.out",
+        delay: 0.2
+      });
+    }
+
+    // 2. Overview Text Reveal
+    const manifestoText = document.querySelector('.villa-manifesto-text');
+    if (manifestoText) {
+      const splitText = new SplitType(manifestoText as HTMLElement, { types: 'lines, words' });
+
+      gsap.from(splitText.words, {
+        opacity: 0,
+        y: 20,
+        duration: 1,
+        stagger: 0.05,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: manifestoText,
+          start: "top 80%",
+        }
+      });
+    }
+
+    // 3. Gallery Pinned Horizontal Scroll
+    const section = document.getElementById("villa-gallery-section");
+    const track = document.getElementById("villa-gallery-track");
+
+    if (section && track) {
+      gsap.to(track, {
+        x: () => -(track.scrollWidth - window.innerWidth),
+        ease: "none",
+        scrollTrigger: {
+          trigger: section,
+          pin: true,
+          scrub: 1,
+          start: "top top",
+          end: () => `+=${track.scrollWidth - window.innerWidth}`,
+          invalidateOnRefresh: true
+        }
+      });
+
+      // Simple inner image parallax for gallery images
+      const images = section.querySelectorAll('.gallery-image');
+      images.forEach((img) => {
+        gsap.to(img, {
+          xPercent: 15,
+          ease: "none",
+          scrollTrigger: {
+            trigger: section,
+            start: "top top",
+            end: () => `+=${track.scrollWidth - window.innerWidth}`,
+            scrub: true,
+          }
+        });
+      });
+    }
+
+    // 4. Specs Grid Reveal
+    const specs = document.querySelectorAll('.spec-item');
+    if (specs.length > 0) {
+      gsap.from(specs, {
+        opacity: 0,
+        y: 30,
+        duration: 0.8,
+        stagger: 0.1,
+        ease: "power2.out",
+        scrollTrigger: {
+          trigger: '.villa-specs',
+          start: "top 75%",
+        }
+      });
+    }
+  }
+
+  // Handle Astro view transitions if needed, or normal DOM loaded
+  document.addEventListener('astro:page-load', initVillaTemplate);
+  if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    initVillaTemplate();
+  } else {
+    document.addEventListener('DOMContentLoaded', initVillaTemplate);
+  }
+</script>
