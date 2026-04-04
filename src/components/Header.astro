@@ -37,7 +37,10 @@ import logoArena from '../assets/logo-arena.png';
   const menuLines = document.querySelectorAll(".menu-line");
 
   if (header && logoWrapper && logoMain && logoArena) {
-    const sections = gsap.utils.toArray('[data-theme]');
+    // Only track themed sections inside <main> to avoid fixed overlays (e.g. footer)
+    // forcing an incorrect initial theme on first paint.
+    const sections = gsap.utils.toArray('main [data-theme]');
+    const footerSpacer = document.getElementById('footer-spacer');
 
     // Scale and padding effect happens once on scroll down
     ScrollTrigger.create({
@@ -65,6 +68,17 @@ import logoArena from '../assets/logo-arena.png';
         onEnterBack: () => applyTheme(theme)
       });
     });
+
+    // Footer is fixed; use the spacer as a reliable in-flow trigger for light theme.
+    if (footerSpacer) {
+      ScrollTrigger.create({
+        trigger: footerSpacer,
+        start: "top 80px",
+        end: "bottom 80px",
+        onEnter: () => applyTheme('light'),
+        onEnterBack: () => applyTheme('light')
+      });
+    }
 
     function applyTheme(theme: string) {
       if (theme === 'dark') {
