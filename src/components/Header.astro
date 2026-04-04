@@ -73,10 +73,11 @@ import logoArena from '../assets/logo-arena.png';
     if (footerSpacer) {
       ScrollTrigger.create({
         trigger: footerSpacer,
-        start: "top 80px",
-        end: "bottom 80px",
+        start: "top bottom",
+        end: "bottom bottom",
         onEnter: () => applyTheme('light'),
-        onEnterBack: () => applyTheme('light')
+        onEnterBack: () => applyTheme('light'),
+        onLeaveBack: () => applyTheme('dark')
       });
     }
 
