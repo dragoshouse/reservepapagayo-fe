@@ -84,15 +84,26 @@ import Footer from '../components/Footer.astro';
 
     document.addEventListener('DOMContentLoaded', () => {
       // Initialize Flatpickr
-      if (window.flatpickr) {
-        window.flatpickr('#dates', {
+      const initializeDatePicker = () => {
+        if (!window.flatpickr) return false;
+
+        const dateField = document.getElementById('dates');
+        if (!dateField) return false;
+
+        window.flatpickr(dateField, {
           mode: 'range',
           minDate: 'today',
-          altInput: true,
-          altFormat: 'F j, Y',
           dateFormat: 'Y-m-d',
-          altInputClass: 'peer w-full bg-transparent border-b border-gray-300 py-4 text-lg text-slate-900 focus:outline-none focus:border-slate-900 transition-colors placeholder-transparent cursor-pointer'
+          disableMobile: true,
+          clickOpens: true,
+          allowInput: false
         });
+
+        return true;
+      };
+
+      if (!initializeDatePicker()) {
+        window.setTimeout(initializeDatePicker, 150);
       }
 
       // GSAP Animations

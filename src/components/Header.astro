@@ -39,7 +39,7 @@ import logoArena from '../assets/logo-arena.png';
   if (header && logoWrapper && logoMain && logoArena) {
     // Only track themed sections inside <main> to avoid fixed overlays (e.g. footer)
     // forcing an incorrect initial theme on first paint.
-    const sections = gsap.utils.toArray('main [data-theme]');
+    const sections = gsap.utils.toArray('.main-content-wrap[data-theme], main [data-theme]');
     const footerSpacer = document.getElementById('footer-spacer');
 
     // Scale and padding effect happens once on scroll down
