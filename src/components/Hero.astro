@@ -2,20 +2,25 @@
 import { Picture } from 'astro:assets';
 import heroImage from '../assets/hero-bg-new.webp';
 
-const { heroData } = Astro.props;
-const headline = heroData?.headline ?? "A private peninsula shaped by nature";
+const { headline, scrollLabel, bgUrl, videoUrl } = Astro.props;
 ---
 
 <section id="hero" class="relative h-screen w-full overflow-hidden bg-black flex items-center justify-center" data-theme="dark">
   <div class="absolute inset-0 z-0 h-[120%] w-full" data-hero-bg>
-    <Picture
-      src={heroImage}
-      alt="Exclusive coastal view in Papagayo"
-      formats={['avif', 'webp']}
-      class="absolute inset-0 object-cover w-full h-full opacity-80"
-      loading="eager"
-      fetchpriority="high"
-    />
+    {videoUrl ? (
+      <video src={videoUrl} autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover" />
+    ) : bgUrl ? (
+      <img src={bgUrl} alt="Hero Background" class="absolute inset-0 w-full h-full object-cover" />
+    ) : (
+      <Picture
+        src={heroImage}
+        alt="Exclusive coastal view in Papagayo"
+        formats={['avif', 'webp']}
+        class="absolute inset-0 object-cover w-full h-full opacity-80"
+        loading="eager"
+        fetchpriority="high"
+      />
+    )}
   </div>
 
   <!-- Top dark gradient overlay for header contrast -->
@@ -32,7 +37,7 @@ const headline = heroData?.headline ?? "A private peninsula shaped by nature";
 
   <!-- Scroll Indicator -->
   <div class="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-4" data-scroll-indicator>
-    <span class="text-white/80 text-[10px] tracking-[0.3em] uppercase font-sans">Scroll</span>
+    <span class="text-white/80 text-[10px] tracking-[0.3em] uppercase font-sans">{scrollLabel}</span>
     <div class="w-[1px] h-16 bg-white/20 relative overflow-hidden">
       <div class="w-full h-full bg-white origin-top" data-scroll-line></div>
     </div>
