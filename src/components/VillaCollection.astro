@@ -5,6 +5,8 @@ import expCulinary from '../assets/exp-culinary.jpg';
 import expFamily from '../assets/exp-family.jpg';
 import expSpa from '../assets/exp-spa.jpg';
 
+const { sectionTitle } = Astro.props;
+
 const villas = [
   {
     name: "Five-Bedroom Estate at Prieta Bay",
@@ -30,6 +32,7 @@ const villas = [
 ---
 
 <section id="villa-collection-section" class="relative h-screen w-full overflow-hidden bg-black" data-theme="dark">
+  <h2 class="sr-only">{sectionTitle}</h2>
   <!-- Sticky Container that gets pinned -->
   <div id="villa-pin-container" class="h-screen w-full flex items-center overflow-hidden">
 
