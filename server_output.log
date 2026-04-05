@@ -1,0 +1,35 @@
+
+> reserve-papagayo@0.0.1 dev
+> astro dev
+
+06:25:35 [types] Generated 1ms
+06:25:35 [vite] Re-optimizing dependencies because vite config has changed
+
+ astro  v4.16.18 ready in 472 ms
+
+┃ Local    http://localhost:4321/
+┃ Network  use --host to expose
+
+
+ update  ▶ New version of Astro available: 6.1.3
+  Run npx @astrojs/upgrade to update
+
+06:25:35 watching for file changes...
+06:26:02 [200] / 88ms
+Sanity fetch failed for Footer, using fallbacks.
+06:26:04 [200] /_image 881ms
+06:26:04 [200] /_image 918ms
+06:26:04 [200] /_image 1030ms
+06:26:04 [200] /_image 1089ms
+06:26:04 [200] /_image 1122ms
+06:26:04 [200] /_image 198ms
+06:26:04 [200] /_image 282ms
+06:26:04 [200] /_image 413ms
+06:26:04 [200] /_image 412ms
+06:26:04 [200] /_image 383ms
+06:26:04 [200] /_image 483ms
+06:26:05 [200] /_image 1006ms
+06:26:07 [200] /_image 2668ms
+06:26:07 [200] /_image 2796ms
+06:26:07 [200] /_image 2144ms
+06:26:18 [200] /_image 15651ms
