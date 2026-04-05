@@ -6,28 +6,22 @@ import CTA from '../../components/CTA.astro';
 import Footer from '../../components/Footer.astro';
 import { Image } from 'astro:assets';
 
-// Dummy imports for images
-import featureVilla from '../../assets/feature-villa.jpg';
-import expCulinary from '../../assets/exp-culinary.jpg';
+import { sanityClient } from 'sanity:client';
 
-const dummyVillas = [
-  {
-    slug: 'the-hive',
-    name: 'The Hive',
-    bedrooms: '6 Bedrooms',
-    excerpt: 'An architectural masterpiece embedded in the canopy, offering sweeping ocean views and unparalleled privacy.',
-    image: featureVilla,
-    alt: 'The Hive Exterior'
-  },
-  {
-    slug: 'esmeralda',
-    name: 'Esmeralda',
-    bedrooms: '5 Bedrooms',
-    excerpt: 'A sanctuary of tranquility featuring lush tropical surroundings and expansive indoor-outdoor living spaces.',
-    image: expCulinary,
-    alt: 'Esmeralda Interior'
-  }
-];
+const query = `*[_type == "villa" && status == "published"] | order(_createdAt desc) {
+  title,
+  "slug": slug.current,
+  "coverUrl": heroBackgroundImage.asset->url,
+  bedrooms, bathrooms,
+  "excerpt": overviewShort
+}`;
+
+let villas = [];
+try {
+  villas = await sanityClient.fetch(query);
+} catch (error) {
+  console.error("Failed to fetch villas for archive:", error);
+}
 ---
 
 <Layout title="The Collection | Experience Papagayo">
@@ -45,7 +39,7 @@ const dummyVillas = [
 
       <!-- Villa List -->
       <section class="villa-archive-list flex flex-col w-full">
-        {dummyVillas.map((villa, index) => {
+        {villas.map((villa: any, index: number) => {
           const isEven = index % 2 === 0;
           return (
             <article class={`villa-item grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 lg:gap-24 items-center min-h-[80vh] px-6 md:px-12 mb-24 md:mb-40 ${!isEven ? 'md:grid-flow-col-dense' : ''}`}>
@@ -53,7 +47,11 @@ const dummyVillas = [
               <div class={`villa-img-col w-full h-[60vh] md:h-[80vh] overflow-hidden relative ${!isEven ? 'md:col-start-2' : ''}`}>
                 <a href={`/villas/${villa.slug}`} class="block w-full h-full">
                   <div class="villa-img-wrap w-full h-full scale-[1.15] origin-center relative">
-                    <Image src={villa.image} alt={villa.alt} class="w-full h-full object-cover" loading={index === 0 ? "eager" : "lazy"} />
+                    {villa.coverUrl ? (
+                      <img src={villa.coverUrl} alt={villa.title ?? "Villa Cover"} class="w-full h-full object-cover" loading={index === 0 ? "eager" : "lazy"} />
+                    ) : (
+                      <div class="w-full h-full bg-slate-200"></div>
+                    )}
                   </div>
                 </a>
               </div>
@@ -61,13 +59,13 @@ const dummyVillas = [
               <!-- Text Column -->
               <div class={`villa-text-col flex flex-col justify-center max-w-xl mx-auto md:mx-0 ${!isEven ? 'md:col-start-1' : ''}`}>
                 <h2 class="text-4xl md:text-6xl font-serif text-[#1A1A1A] mb-4 leading-tight">
-                  <a href={`/villas/${villa.slug}`} class="hover:opacity-80 transition-opacity">{villa.name}</a>
+                  <a href={`/villas/${villa.slug}`} class="hover:opacity-80 transition-opacity">{villa.title ?? "Villa"}</a>
                 </h2>
                 <span class="text-sm tracking-widest uppercase font-medium text-black/60 mb-8 block">
-                  {villa.bedrooms}
+                  {villa.bedrooms ? `${villa.bedrooms} Bedrooms` : "N/A Bedrooms"}
                 </span>
                 <p class="text-lg md:text-xl leading-relaxed text-black/80 mb-10">
-                  {villa.excerpt}
+                  {villa.excerpt ?? "Explore this beautiful sanctuary..."}
                 </p>
                 <a href={`/villas/${villa.slug}`} class="inline-flex items-center text-sm tracking-widest uppercase font-semibold text-[#1A1A1A] group">
                   <span class="mr-4">Discover</span>

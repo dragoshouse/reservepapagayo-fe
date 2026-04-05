@@ -6,45 +6,27 @@ import CTA from '../../components/CTA.astro';
 import Footer from '../../components/Footer.astro';
 import { Image } from 'astro:assets';
 
-// Dummy imports for images
-import featureVilla from '../../assets/feature-villa.jpg';
-import expCulinary from '../../assets/exp-culinary.jpg';
-import expSpa from '../../assets/exp-spa.jpg';
-import expFamily from '../../assets/exp-family.jpg';
+import { sanityClient } from 'sanity:client';
 
-export function getStaticPaths() {
-  const dummyVillas = [
-    {
-      slug: 'the-hive',
-      name: 'The Hive',
-      heroImage: featureVilla,
-      overview: 'An architectural masterpiece embedded in the canopy. The Hive redefines luxury with its sweeping ocean views, unprecedented privacy, and seamless integration with the natural world.',
-      gallery: [expCulinary, expSpa, expFamily],
-      specs: [
-        { label: 'Total Area', value: '8,500 sq ft' },
-        { label: 'Bedrooms', value: '6' },
-        { label: 'Bathrooms', value: '7.5' },
-        { label: 'Pool', value: 'Infinity Edge' },
-        { label: 'Staff', value: 'Dedicated Team' }
-      ]
-    },
-    {
-      slug: 'esmeralda',
-      name: 'Esmeralda',
-      heroImage: expCulinary,
-      overview: 'A sanctuary of tranquility featuring lush tropical surroundings and expansive indoor-outdoor living spaces. Esmeralda is where modern design meets the raw beauty of Costa Rica.',
-      gallery: [featureVilla, expSpa, expFamily],
-      specs: [
-        { label: 'Total Area', value: '6,200 sq ft' },
-        { label: 'Bedrooms', value: '5' },
-        { label: 'Bathrooms', value: '5.5' },
-        { label: 'Pool', value: 'Private Plunge' },
-        { label: 'Staff', value: 'On-Call Concierge' }
-      ]
-    }
-  ];
+export async function getStaticPaths() {
+  const query = `*[_type == "villa" && status == "published"]{
+    "slug": slug.current,
+    title, heroTitle, heroMediaType,
+    "heroBgUrl": heroBackgroundImage.asset->url,
+    "heroVideoUrl": heroBackgroundVideo.asset->url,
+    overviewEyebrow, overviewManifesto,
+    "gallery": galleryItems[]{ "url": image.asset->url, "alt": image.alt, caption },
+    bedrooms, bathrooms, maxGuests, interiorSqFt, amenities
+  }`;
 
-  return dummyVillas.map((villa) => {
+  let villas = [];
+  try {
+    villas = await sanityClient.fetch(query);
+  } catch (error) {
+    console.error("Failed to fetch villas:", error);
+  }
+
+  return villas.map((villa: any) => {
     return {
       params: { slug: villa.slug },
       props: { villa },
@@ -55,7 +37,7 @@ export function getStaticPaths() {
 const { villa } = Astro.props;
 ---
 
-<Layout title={`${villa.name} | Experience Papagayo`}>
+<Layout title={`${villa.title ?? "Villa"} | Experience Papagayo`}>
   <Header />
   <FullscreenMenu />
 
@@ -64,14 +46,15 @@ const { villa } = Astro.props;
 
       <!-- Section 1: Immersive Hero -->
       <section class="villa-hero relative h-screen w-full overflow-hidden flex items-center justify-center" data-theme="dark">
-        <!-- Background Image -->
+        <!-- Background -->
         <div class="absolute inset-0 w-full h-full">
-          <Image
-            src={villa.heroImage}
-            alt={villa.name}
-            class="w-full h-full object-cover scale-[1.05]"
-            loading="eager"
-          />
+          {villa?.heroMediaType === 'video' && villa?.heroVideoUrl ? (
+            <video src={villa.heroVideoUrl} autoplay loop muted playsinline class="w-full h-full object-cover scale-[1.05]" />
+          ) : villa?.heroBgUrl ? (
+            <img src={villa.heroBgUrl} alt={villa?.title ?? "Villa Hero"} class="w-full h-full object-cover scale-[1.05]" />
+          ) : (
+             <div class="w-full h-full bg-slate-800 scale-[1.05]"></div>
+          )}
           <!-- Dark gradient overlay top and bottom -->
           <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-black/20 to-black/60"></div>
         </div>
@@ -79,7 +62,7 @@ const { villa } = Astro.props;
         <!-- Centered Title -->
         <div class="relative z-10 text-center px-4">
           <h1 class="villa-title text-6xl md:text-[8vw] font-serif text-[#F5F5F0] tracking-tight leading-none opacity-0 translate-y-10">
-            {villa.name}
+            {villa?.heroTitle ?? villa?.title ?? "Villa"}
           </h1>
         </div>
       </section>
@@ -87,30 +70,37 @@ const { villa } = Astro.props;
       <!-- Section 2: The Overview -->
       <section class="villa-overview py-32 md:py-48 px-6 md:px-12 bg-white flex items-center justify-center min-h-[70vh]" data-theme="light">
         <div class="max-w-4xl mx-auto text-center">
-          <h2 class="text-sm tracking-[0.2em] uppercase font-bold text-black/40 mb-12">At a Glance</h2>
+          <h2 class="text-sm tracking-[0.2em] uppercase font-bold text-black/40 mb-12">{villa?.overviewEyebrow ?? "At a Glance"}</h2>
           <p class="villa-manifesto-text text-3xl md:text-5xl lg:text-6xl font-serif leading-tight md:leading-snug text-[#1A1A1A]">
-            {villa.overview}
+            {villa?.overviewManifesto ?? "A beautiful sanctuary..."}
           </p>
         </div>
       </section>
 
       <!-- Section 3: The Gallery (Pinned Horizontal Scroll) -->
+      {villa?.gallery && villa.gallery.length > 0 && (
       <section id="villa-gallery-section" class="relative h-screen w-full overflow-hidden bg-white" data-theme="light">
         <div id="villa-gallery-container" class="h-screen w-full flex items-center overflow-hidden">
           <div id="villa-gallery-track" class="flex flex-nowrap w-[max-content] h-[80vh] items-center px-[5vw] gap-8 md:gap-16">
-            {villa.gallery.map((img, index) => (
-              <article class="gallery-card relative w-[85vw] md:w-[60vw] h-full flex-shrink-0 overflow-hidden">
-                <Image
-                  src={img}
-                  alt={`${villa.name} Gallery ${index + 1}`}
+            {villa.gallery.map((img: any, index: number) => (
+              <article class="gallery-card relative w-[85vw] md:w-[60vw] h-full flex-shrink-0 overflow-hidden group">
+                <img
+                  src={img.url}
+                  alt={img.alt ?? `${villa?.title ?? "Villa"} Gallery ${index + 1}`}
                   class="gallery-image w-full h-full object-cover"
                   loading="lazy"
                 />
+                {img.caption && (
+                  <div class="absolute bottom-0 left-0 w-full p-6 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <p class="text-white text-sm tracking-widest">{img.caption}</p>
+                  </div>
+                )}
               </article>
             ))}
           </div>
         </div>
       </section>
+      )}
 
       <!-- Section 4: Specifications Grid -->
       <section class="villa-specs py-32 md:py-48 px-6 md:px-12 bg-white" data-theme="light">
@@ -118,22 +108,55 @@ const { villa } = Astro.props;
           <h2 class="text-4xl md:text-5xl font-serif text-[#1A1A1A] mb-16 md:mb-24">Specifications</h2>
 
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-16">
-            {villa.specs.map((spec) => (
-              <div class="spec-item border-t border-slate-300 pt-6">
+             <div class="spec-item border-t border-slate-300 pt-6">
                 <span class="block text-xs tracking-widest uppercase font-semibold text-black/50 mb-2">
-                  {spec.label}
+                  Bedrooms
                 </span>
                 <span class="block text-2xl md:text-3xl font-serif text-[#1A1A1A]">
-                  {spec.value}
+                  {villa?.bedrooms ?? "N/A"}
                 </span>
               </div>
-            ))}
+              <div class="spec-item border-t border-slate-300 pt-6">
+                <span class="block text-xs tracking-widest uppercase font-semibold text-black/50 mb-2">
+                  Bathrooms
+                </span>
+                <span class="block text-2xl md:text-3xl font-serif text-[#1A1A1A]">
+                  {villa?.bathrooms ?? "N/A"}
+                </span>
+              </div>
+              <div class="spec-item border-t border-slate-300 pt-6">
+                <span class="block text-xs tracking-widest uppercase font-semibold text-black/50 mb-2">
+                  Max Guests
+                </span>
+                <span class="block text-2xl md:text-3xl font-serif text-[#1A1A1A]">
+                  {villa?.maxGuests ?? "N/A"}
+                </span>
+              </div>
+              <div class="spec-item border-t border-slate-300 pt-6">
+                <span class="block text-xs tracking-widest uppercase font-semibold text-black/50 mb-2">
+                  Interior Sq Ft
+                </span>
+                <span class="block text-2xl md:text-3xl font-serif text-[#1A1A1A]">
+                  {villa?.interiorSqFt ?? "N/A"} sq ft
+                </span>
+              </div>
+
+              {villa?.amenities && villa.amenities.map((amenity: string) => (
+                <div class="spec-item border-t border-slate-300 pt-6">
+                  <span class="block text-xs tracking-widest uppercase font-semibold text-black/50 mb-2">
+                    Amenity
+                  </span>
+                  <span class="block text-xl md:text-2xl font-serif text-[#1A1A1A]">
+                    {amenity}
+                  </span>
+                </div>
+              ))}
           </div>
         </div>
       </section>
 
       <!-- CTA -->
-      <CTA title={`Experience <br/>${villa.name}`} buttonText="Reserve" />
+      <CTA title={`Experience <br/>${villa?.title ?? "this Villa"}`} buttonText="Reserve" />
     </main>
   </div>
 
