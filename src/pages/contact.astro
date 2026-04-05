@@ -6,9 +6,6 @@ import Footer from '../components/Footer.astro';
 ---
 
 <Layout title="Contact | Experience Papagayo">
-  <!-- Include flatpickr css -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" slot="head" />
-
   <Header />
   <FullscreenMenu />
 
@@ -37,8 +34,8 @@ import Footer from '../components/Footer.astro';
 
           <!-- Preferred Dates -->
           <div class="relative gsap-reveal">
-            <input type="text" id="dates" name="dates" class="peer w-full bg-transparent border-b border-gray-300 py-4 text-lg text-slate-900 focus:outline-none focus:border-slate-900 transition-colors placeholder-transparent cursor-pointer" placeholder="Preferred Dates" required />
-            <label for="dates" class="absolute left-0 -top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:text-lg peer-placeholder-shown:top-4 peer-focus:-top-3 peer-focus:text-sm peer-focus:text-slate-900 pointer-events-none z-10">Preferred Dates</label>
+            <input type="text" id="date-picker" name="dates" class="peer w-full bg-transparent border-b border-gray-300 py-4 text-lg text-slate-900 focus:outline-none focus:border-slate-900 transition-colors placeholder-transparent cursor-pointer" placeholder="Preferred Dates" required />
+            <label for="date-picker" class="absolute left-0 -top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:text-lg peer-placeholder-shown:top-4 peer-focus:-top-3 peer-focus:text-sm peer-focus:text-slate-900 pointer-events-none z-10">Preferred Dates</label>
           </div>
 
           <!-- Experiences -->
@@ -73,24 +70,18 @@ import Footer from '../components/Footer.astro';
   <Footer />
   <div id="footer-spacer"></div>
 
-  <!-- Flatpickr JS -->
-  <script is:inline src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-
   <script>
+    import flatpickr from 'flatpickr';
+    import 'flatpickr/dist/flatpickr.min.css';
     import gsap from 'gsap';
     import ScrollTrigger from 'gsap/ScrollTrigger';
 
     gsap.registerPlugin(ScrollTrigger);
 
-    document.addEventListener('DOMContentLoaded', () => {
-      // Initialize Flatpickr
-      const initializeDatePicker = () => {
-        if (!window.flatpickr) return false;
-
-        const dateField = document.getElementById('dates');
-        if (!dateField) return false;
-
-        window.flatpickr(dateField, {
+    const initFlatpickr = () => {
+      const dateInput = document.getElementById('date-picker');
+      if (dateInput) {
+        flatpickr(dateInput, {
           mode: 'range',
           minDate: 'today',
           dateFormat: 'Y-m-d',
@@ -98,13 +89,14 @@ import Footer from '../components/Footer.astro';
           clickOpens: true,
           allowInput: false
         });
-
-        return true;
-      };
-
-      if (!initializeDatePicker()) {
-        window.setTimeout(initializeDatePicker, 150);
+        console.log("Flatpickr successfully mounted");
+      } else {
+        console.error("Flatpickr target input not found in DOM");
       }
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initFlatpickr();
 
       // GSAP Animations
       const reveals = document.querySelectorAll('.gsap-reveal');
@@ -125,6 +117,8 @@ import Footer from '../components/Footer.astro';
         }
       );
     });
+
+    document.addEventListener('astro:page-load', initFlatpickr);
   </script>
 </Layout>
 
@@ -136,6 +130,7 @@ import Footer from '../components/Footer.astro';
     box-shadow: 0 10px 25px rgba(0,0,0,0.05) !important;
     border-radius: 12px !important;
     padding: 10px !important;
+    z-index: 9999 !important;
   }
 
   .flatpickr-day.selected,
