@@ -11,8 +11,13 @@ import Footer from '../components/Footer.astro';
 import { sanityClient } from 'sanity:client';
 import { urlFor } from '../utils/sanity';
 
-const query = `*[_type == "home"][0]{ ..., "videoUrl": heroBackgroundVideo.asset->url }`;
-const homeData = await sanityClient.fetch(query).catch(() => ({}));
+const query = `{
+  "homeData": *[_type == "home"][0]{ ..., "videoUrl": heroBackgroundVideo.asset->url },
+  "featuredVillas": *[_type == "villa" && status == "published" && isFeatured == true] | order(featuredPriority asc) { title, "slug": slug.current, "coverUrl": heroBackgroundImage.asset->url }
+}`;
+const data = await sanityClient.fetch(query).catch(() => ({ homeData: {}, featuredVillas: [] }));
+const homeData = data.homeData;
+const featuredVillas = data.featuredVillas;
 
 const seoTitle = homeData?.seoTitle ?? "Experience Papagayo | A Private Peninsula Shaped by Nature";
 const heroHeadline = homeData?.heroHeadline ?? "A private peninsula shaped by nature";
@@ -38,7 +43,7 @@ const ctaButtonText = homeData?.ctaButtonText ?? "Inquire Now";
         bgUrl={heroBgUrl}
         videoUrl={heroVideoUrl}
       />
-      <VillaCollection sectionTitle={villaSectionTitle} />
+      <VillaCollection sectionTitle={villaSectionTitle} featuredVillas={featuredVillas} />
       <Experiences />
       <Journal sectionLabel={journalLabel} readAllLabel={journalReadAll} />
       <CTA title={ctaTitle} buttonText={ctaButtonText} />
