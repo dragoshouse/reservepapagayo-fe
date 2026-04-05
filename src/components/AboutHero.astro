@@ -1,18 +1,38 @@
 ---
 import { Picture } from 'astro:assets';
 import heroImage from '../assets/hero-bg.jpg';
+
+interface Props {
+  headline?: string;
+  subheadline?: string;
+  bgUrl?: string | null;
+  videoUrl?: string | null;
+}
+
+const {
+  headline = "About Experience Papagayo",
+  subheadline = "We didn't set out to rent villas. We set out to change how people experience Costa Rica.",
+  bgUrl = null,
+  videoUrl = null
+} = Astro.props;
 ---
 
 <section id="about-hero" class="relative h-screen w-full overflow-hidden bg-black flex items-center justify-center" data-theme="dark">
   <div class="absolute inset-0 z-0 h-[120%] w-full" data-about-hero-bg>
-    <Picture
-      src={heroImage}
-      alt="Experience Papagayo - About Us"
-      formats={['avif', 'webp']}
-      class="absolute inset-0 object-cover w-full h-full opacity-80"
-      loading="eager"
-      fetchpriority="high"
-    />
+    {videoUrl ? (
+      <video src={videoUrl} autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover opacity-80" />
+    ) : bgUrl ? (
+      <img src={bgUrl} alt="Experience Papagayo - About Us" class="absolute inset-0 w-full h-full object-cover opacity-80" />
+    ) : (
+      <Picture
+        src={heroImage}
+        alt="Experience Papagayo - About Us"
+        formats={['avif', 'webp']}
+        class="absolute inset-0 object-cover w-full h-full opacity-80"
+        loading="eager"
+        fetchpriority="high"
+      />
+    )}
   </div>
 
   <!-- Top dark gradient overlay for header contrast -->
@@ -23,10 +43,10 @@ import heroImage from '../assets/hero-bg.jpg';
       class="text-white font-serif text-5xl md:text-7xl lg:text-8xl tracking-tight leading-tight opacity-0 translate-y-8 mb-8"
       data-about-hero-element
     >
-      About Experience Papagayo
+      {headline}
     </h1>
     <p class="text-white/90 text-lg md:text-xl lg:text-2xl font-light max-w-2xl opacity-0 translate-y-8" data-about-hero-element>
-      We didn't set out to rent villas. We set out to change how people experience Costa Rica.
+      {subheadline}
     </p>
   </div>
 </section>

@@ -5,33 +5,66 @@ import FullscreenMenu from '../components/FullscreenMenu.astro';
 import AboutHero from '../components/AboutHero.astro';
 import AboutManifesto from '../components/AboutManifesto.astro';
 import AboutRooted from '../components/AboutRooted.astro';
+import AboutLegacy from '../components/AboutLegacy.astro';
 import CTA from '../components/CTA.astro';
 import Footer from '../components/Footer.astro';
+import { sanityClient } from 'sanity:client';
+import { urlFor } from '../utils/sanity';
+
+let aboutData: any = null;
+
+try {
+  const query = `*[_type == "about"][0]{ ..., "heroVideoUrl": heroBackgroundVideo.asset->url }`;
+  aboutData = await sanityClient.fetch(query);
+} catch (error) {
+  console.error("Failed to fetch Sanity data for about.astro:", error);
+}
+
+const seoTitle = aboutData?.seoTitle ?? "About Us | Experience Papagayo";
+const heroHeadline = aboutData?.heroHeadline ?? "About Experience Papagayo";
+const heroSubheadline = aboutData?.heroSubheadline ?? "We didn't set out to rent villas. We set out to change how people experience Costa Rica.";
+const heroBgUrl = aboutData?.heroBackgroundImage ? urlFor(aboutData.heroBackgroundImage).url() : null;
+const heroVideoUrl = aboutData?.heroVideoUrl ?? null;
+const manifestoLines = aboutData?.manifestoLines?.length > 0 ? aboutData.manifestoLines : ["Peninsula Papagayo is one of the most extraordinary places on Earth.", "A private reserve where Pacific sunsets meet jungle canopies.", "But a stunning location alone doesn't create a memorable stay.", "People do."];
+const manifestoSupport = aboutData?.manifestoSupportingParagraph ?? "Experience Papagayo was born from a simple belief: that the finest travel is defined not by square footage, but by the quality of care behind every detail.";
+const rootedHeading = aboutData?.rootedHeading ?? "Rooted in Peninsula Papagayo. Trusted by discerning travelers worldwide.";
+const rootedRawText = aboutData?.rootedDescriptionParagraphs ?? "We operate a carefully curated collection of exclusive private sanctuaries...\n\nBeyond the villas, we unlock the full breadth of what Peninsula Papagayo has to offer...";
+const rootedGallery = aboutData?.rootedGalleryImages?.length > 0 ? aboutData.rootedGalleryImages : [];
+const legacyHeadline = aboutData?.legacyHeadline ?? "Backed by over 15 years of estate management excellence.";
+const legacyParagraph = aboutData?.legacyParagraph ?? "Experience Papagayo is proudly powered by MDO Estate Management...";
+const ctaTitle = aboutData?.ctaOverrideTitle ?? "Ready to begin?";
+const ctaBtn = aboutData?.ctaOverrideButtonText ?? "Begin Your Stay";
 ---
 
-<Layout title="About Us | Experience Papagayo">
+<Layout title={seoTitle}>
   <Header />
   <FullscreenMenu />
 
   <div class="main-content-wrap relative z-10 bg-white">
     <main>
-      <AboutHero />
-      <AboutManifesto />
-      <AboutRooted />
-
-      <!-- Legacy & Assembly Section -->
-      <section class="py-24 md:py-40 px-6 md:px-12 bg-[#111111] text-white flex flex-col items-center justify-center text-center" data-theme="dark">
-        <div class="max-w-3xl mx-auto space-y-8">
-          <h2 class="font-serif text-3xl md:text-5xl leading-tight">
-            Backed by over 15 years of estate management excellence.
-          </h2>
-          <p class="text-lg md:text-xl font-light text-white/80">
-            We've spent over a decade perfecting the art of hospitality on Peninsula Papagayo. Every detail, every interaction, and every moment is designed to exceed expectations.
-          </p>
-        </div>
-      </section>
-
-      <CTA title="Ready to begin?" buttonText="Begin Your Stay" />
+      <AboutHero
+        headline={heroHeadline}
+        subheadline={heroSubheadline}
+        bgUrl={heroBgUrl}
+        videoUrl={heroVideoUrl}
+      />
+      <AboutManifesto
+        lines={manifestoLines}
+        supportText={manifestoSupport}
+      />
+      <AboutRooted
+        heading={rootedHeading}
+        rawText={rootedRawText}
+        gallery={rootedGallery}
+      />
+      <AboutLegacy
+        headline={legacyHeadline}
+        text={legacyParagraph}
+      />
+      <CTA
+        title={ctaTitle}
+        buttonText={ctaBtn}
+      />
     </main>
   </div>
 

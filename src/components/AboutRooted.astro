@@ -1,8 +1,29 @@
 ---
 import { Picture } from 'astro:assets';
+import { urlFor } from '../utils/sanity';
 import villaImage from '../assets/feature-villa.jpg';
 import culinaryImage from '../assets/exp-culinary.jpg';
 import spaImage from '../assets/exp-spa.jpg';
+
+interface Props {
+  heading?: string;
+  rawText?: string;
+  gallery?: any[];
+}
+
+const {
+  heading = "Rooted in Peninsula Papagayo",
+  rawText = "We manage the finest collection of exclusive private sanctuaries on the peninsula. Our properties are hand-selected not just for their architecture or views, but for their ability to provide absolute privacy and tranquility.\n\nFrom the Arnold Palmer Signature golf course to the deep-sea fishing at Marina Papagayo, we provide unprecedented access to the absolute best the region has to offer, curated entirely around your preferences.",
+  gallery = []
+} = Astro.props;
+
+const paragraphs = rawText.split('\n').filter(p => p.trim() !== '');
+
+const fallbackImages = [
+  { src: villaImage, alt: "Exclusive private sanctuary exterior" },
+  { src: culinaryImage, alt: "Curated culinary experience" },
+  { src: spaImage, alt: "Exclusive spa and wellness" }
+];
 ---
 
 <section id="about-rooted" class="py-24 md:py-48 px-6 md:px-12 bg-[#F5F5F0] text-black relative z-10" data-theme="light">
@@ -11,46 +32,39 @@ import spaImage from '../assets/exp-spa.jpg';
     <!-- Left Column: Sticky Text -->
     <div class="md:sticky md:top-[20vh] flex flex-col gap-8 md:pr-12">
       <h2 class="font-serif text-4xl md:text-5xl lg:text-6xl leading-tight">
-        Rooted in Peninsula Papagayo
+        {heading}
       </h2>
       <div class="text-lg md:text-xl font-light leading-relaxed text-gray-800 space-y-6">
-        <p>
-          We manage the finest collection of exclusive private sanctuaries on the peninsula. Our properties are hand-selected not just for their architecture or views, but for their ability to provide absolute privacy and tranquility.
-        </p>
-        <p>
-          From the Arnold Palmer Signature golf course to the deep-sea fishing at Marina Papagayo, we provide unprecedented access to the absolute best the region has to offer, curated entirely around your preferences.
-        </p>
+        {paragraphs.map(p => (
+          <p>{p}</p>
+        ))}
       </div>
     </div>
 
     <!-- Right Column: Scrolling Images -->
     <div class="flex flex-col gap-12 md:gap-24 md:pt-16">
-      <div class="rounded-xl overflow-hidden shadow-2xl relative w-full aspect-[4/5] md:aspect-auto md:h-[600px]">
-        <Picture
-          src={villaImage}
-          alt="Exclusive private sanctuary exterior"
-          formats={['avif', 'webp']}
-          class="w-full h-full object-cover"
-        />
-      </div>
-
-      <div class="rounded-xl overflow-hidden shadow-2xl relative w-full aspect-[4/5] md:aspect-auto md:h-[600px]">
-        <Picture
-          src={culinaryImage}
-          alt="Curated culinary experience"
-          formats={['avif', 'webp']}
-          class="w-full h-full object-cover"
-        />
-      </div>
-
-      <div class="rounded-xl overflow-hidden shadow-2xl relative w-full aspect-[4/5] md:aspect-auto md:h-[600px]">
-        <Picture
-          src={spaImage}
-          alt="Exclusive spa and wellness"
-          formats={['avif', 'webp']}
-          class="w-full h-full object-cover"
-        />
-      </div>
+      {gallery && gallery.length > 0 ? (
+        gallery.map(img => (
+          <div class="rounded-xl overflow-hidden shadow-2xl relative w-full aspect-[4/5] md:aspect-auto md:h-[600px]">
+            <img
+              src={urlFor(img).url()}
+              alt={img.alt || "Experience Papagayo Gallery Image"}
+              class="w-full h-full object-cover"
+            />
+          </div>
+        ))
+      ) : (
+        fallbackImages.map(img => (
+          <div class="rounded-xl overflow-hidden shadow-2xl relative w-full aspect-[4/5] md:aspect-auto md:h-[600px]">
+            <Picture
+              src={img.src}
+              alt={img.alt}
+              formats={['avif', 'webp']}
+              class="w-full h-full object-cover"
+            />
+          </div>
+        ))
+      )}
     </div>
 
   </div>
