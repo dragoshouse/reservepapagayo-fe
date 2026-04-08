@@ -1,0 +1,266 @@
+---
+const experiences = [
+  { id: 1, category: "beach", title: "Prieta Beach Club", image: "https://img1.wsimg.com/isteam/ip/594de56d-d21f-446f-a9a0-cc641c5dd71e/(PRIETA%20BEACH%20CLUB)%20pg4545RGB%20copy.jpg/:/cr=t:0%25,l:0%25,w:66.68%25,h:100%25/rs=w:388,h:388,cg:true", description: "Offers something for every age, interest, and season, exclusively for guests of Peninsula Papagayo, with an exceptional variety of outdoor adventures, water sports, wellness activities, and year-round classes and events. Its relaxed poolside and beachfront setting combines refined comfort and attentive service with breathtaking natural surroundings." },
+  { id: 2, category: "family", title: "The Kids Club", image: "https://img1.wsimg.com/isteam/ip/594de56d-d21f-446f-a9a0-cc641c5dd71e/(PRIETA%20BEACH%20CLUB)%20kevsteele_180223_LQ_L10100.jpg/:/cr=t:0%25,l:16.66%25,w:66.68%25,h:100%25/rs=w:388,h:388,cg:true", description: "Designed to broaden your children’s horizons while fostering a deeper appreciation for Costa Rica’s rich culture and natural beauty. With a thoughtful blend of environmental science and the arts, the Club offers a dynamic program of engaging, educational, and imaginative activities." },
+  { id: 3, category: "sports", title: "Golf & Tennis", image: "https://img1.wsimg.com/isteam/ip/594de56d-d21f-446f-a9a0-cc641c5dd71e/(GOLF%20)DSC00322_McInnis%20copy.jpg/:/cr=t:0%25,l:16.64%25,w:66.72%25,h:100%25/rs=w:388,h:388,cg:true", description: "Treat yourself to the ultimate eco-golf experience, where every swing is framed by panoramic views of white-sand beaches, turquoise waters, and emerald-green seashore paspalum turf. The 18-hole, par-72 Arnold Palmer Signature Golf Course meanders through lush forests and dramatic valleys." },
+  { id: 4, category: "sports", title: "The Spa", image: "https://img1.wsimg.com/isteam/ip/594de56d-d21f-446f-a9a0-cc641c5dd71e/(PRIETA%20BEACH%20CLUB)%20pg4296RGB%20copy.jpg/:/cr=t:13.14%25,l:0%25,w:100%25,h:73.71%25/rs=w:388,h:388,cg:true", description: "Elevate your stay with exclusive access to the finest resort spas in Peninsula Papagayo. From serene ocean view treatments to curated wellness rituals, every experience is designed to restore, rejuvenate, and inspire." },
+  { id: 5, category: "adventures", title: "Eco-Adventures", image: "https://img1.wsimg.com/isteam/ip/594de56d-d21f-446f-a9a0-cc641c5dd71e/PAPAGAYO%20EXPLORERS%20CLUB%20)McInnis_073118_66319.jpg/:/cr=t:0%25,l:16.67%25,w:66.67%25,h:100%25/rs=w:388,h:388,cg:true", description: "Make your stay truly unforgettable. Costa Rica is a world-renowned eco-adventure destination, rich in exotic landscapes and extraordinary excursions. Whether you crave the thrill of exploring majestic volcanoes or dream of a private boat journey to a secluded beach." },
+  { id: 6, category: "beach", title: "Marina Papagayo", image: "https://img1.wsimg.com/isteam/ip/594de56d-d21f-446f-a9a0-cc641c5dd71e/blob-0003.png/:/cr=t:0%25,l:16.62%25,w:66.76%25,h:100%25/rs=w:388,h:388,cg:true", description: "Your gateway to untamed splendor. Set out in search of humpback whales, dolphins, and sea turtles, or test your skills in an angler’s paradise teeming with deep-sea gamefish. Cross the gulf to Santa Rosa National Park and ride the legendary waves at Witches Rock." },
+  { id: 7, category: "sports", title: "Papagayo Park", image: "https://img1.wsimg.com/isteam/ip/594de56d-d21f-446f-a9a0-cc641c5dd71e/sport%20center.jpeg/:/cr=t:0%25,l:16.38%25,w:67.25%25,h:100%25/rs=w:388,h:388,cg:true", description: "Play, connect, and stay active all in one place. As our guest, you’ll have exclusive access to a vibrant space designed for wellness and community with modern fitness equipment, sports facilities, and kid-friendly areas." },
+  { id: 8, category: "sports", title: "The Polo Field", image: "https://img1.wsimg.com/isteam/ip/594de56d-d21f-446f-a9a0-cc641c5dd71e/polo.jpeg/:/cr=t:10.71%25,l:43.18%25,w:56.82%25,h:89.29%25/rs=w:388,h:388,cg:true,m", description: "Adjacent to Peninsula Papagayo offers a rare and exhilarating opportunity to enjoy this timeless sport with the Pacific Ocean as your backdrop. Personalized lessons and Stick & Ball sessions are available." }
+];
+
+const categories = [
+  { id: "all", label: "All Experiences" },
+  { id: "beach", label: "Beach & Marina" },
+  { id: "family", label: "Family" },
+  { id: "sports", label: "Wellness & Sports" },
+  { id: "adventures", label: "Adventures" }
+];
+
+// Helper to calculate grid span based on index for asymmetric layout
+function getGridClasses(index: number) {
+  // Pattern to make a bento box layout
+  const patterns = [
+    "md:col-span-2 md:row-span-2", // 0: Large square
+    "md:col-span-1 md:row-span-1", // 1: Small square
+    "md:col-span-1 md:row-span-1", // 2: Small square
+    "md:col-span-2 md:row-span-1", // 3: Wide horizontal
+    "md:col-span-1 md:row-span-2", // 4: Tall vertical
+    "md:col-span-2 md:row-span-1", // 5: Wide horizontal
+    "md:col-span-1 md:row-span-1", // 6: Small square
+    "md:col-span-2 md:row-span-1"  // 7: Wide horizontal
+  ];
+  return patterns[index % patterns.length];
+}
+---
+
+<section class="py-24 md:py-32 bg-white" id="curated-experiences" data-theme="light">
+  <div class="max-w-7xl mx-auto px-6 md:px-12">
+    <!-- Header -->
+    <div class="mb-12 text-center">
+      <h2 class="font-serif text-4xl md:text-5xl text-slate-900 mb-4">Curated Experiences</h2>
+    </div>
+
+    <!-- The Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 auto-rows-[300px] mb-12">
+      {experiences.map((item, i) => (
+        <div
+          class={`experience-card cursor-pointer relative overflow-hidden group rounded-xl ${getGridClasses(i)}`}
+          data-category={item.category}
+          data-title={item.title}
+          data-description={item.description}
+          data-image={item.image}
+        >
+          <!-- Background Image -->
+          <img
+            src={item.image}
+            alt={item.title}
+            class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            loading="lazy"
+          />
+
+          <!-- Hover Overlay -->
+          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center p-6 text-center">
+            <h3 class="text-white font-serif text-2xl md:text-3xl translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+              {item.title}
+            </h3>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <!-- The Pills -->
+    <div class="flex flex-wrap justify-center gap-3">
+      {categories.map((cat, i) => (
+        <button
+          class={`filter-pill px-6 py-2.5 rounded-full border text-sm font-sans tracking-wide transition-all duration-300 ${
+            i === 0
+              ? 'bg-slate-900 text-white border-slate-900 active-pill'
+              : 'bg-transparent text-slate-700 border-slate-300 hover:border-slate-500'
+          }`}
+          data-filter={cat.id}
+        >
+          {cat.label}
+        </button>
+      ))}
+    </div>
+  </div>
+</section>
+
+<!-- The Modal -->
+<div
+  id="experience-modal"
+  class="fixed inset-0 z-50 flex items-center justify-center opacity-0 pointer-events-none p-4 md:p-8"
+>
+  <!-- Backdrop -->
+  <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" id="modal-backdrop"></div>
+
+  <!-- Content Container -->
+  <div
+    id="modal-content"
+    class="relative w-full max-w-2xl bg-white rounded-2xl overflow-hidden flex flex-col shadow-2xl scale-95"
+  >
+    <!-- Close Button -->
+    <button
+      id="modal-close"
+      class="absolute top-4 right-4 z-10 w-10 h-10 bg-black/50 hover:bg-black/80 rounded-full flex items-center justify-center text-white transition-colors backdrop-blur-md"
+      aria-label="Close modal"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+
+    <!-- Modal Image -->
+    <div class="w-full h-64 md:h-80 relative bg-slate-100">
+      <img id="modal-image" src="" alt="Experience Image" class="w-full h-full object-cover" />
+    </div>
+
+    <!-- Modal Text -->
+    <div class="p-8 md:p-10 text-center">
+      <h2 id="modal-title" class="font-serif text-3xl md:text-4xl text-slate-900 mb-4"></h2>
+      <p id="modal-description" class="text-slate-600 leading-relaxed font-sans text-lg"></p>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { gsap } from 'gsap';
+
+  function initCuratedExperiences() {
+    const cards = document.querySelectorAll('.experience-card');
+    const pills = document.querySelectorAll('.filter-pill');
+
+    // Modal elements
+    const modal = document.getElementById('experience-modal');
+    const backdrop = document.getElementById('modal-backdrop');
+    const closeBtn = document.getElementById('modal-close');
+    const modalContent = document.getElementById('modal-content');
+    const modalImage = document.getElementById('modal-image') as HTMLImageElement;
+    const modalTitle = document.getElementById('modal-title');
+    const modalDescription = document.getElementById('modal-description');
+
+    if (!cards.length || !pills.length || !modal) return;
+
+    // Filter Logic
+    pills.forEach(pill => {
+      pill.addEventListener('click', (e) => {
+        const target = e.currentTarget as HTMLElement;
+        const filterValue = target.getAttribute('data-filter');
+
+        // Update active pill styling
+        pills.forEach(p => {
+          p.classList.remove('bg-slate-900', 'text-white', 'border-slate-900', 'active-pill');
+          p.classList.add('bg-transparent', 'text-slate-700', 'border-slate-300');
+        });
+        target.classList.remove('bg-transparent', 'text-slate-700', 'border-slate-300');
+        target.classList.add('bg-slate-900', 'text-white', 'border-slate-900', 'active-pill');
+
+        // Animate cards
+        cards.forEach((card: any) => {
+          const category = card.getAttribute('data-category');
+
+          if (filterValue === 'all' || category === filterValue) {
+            gsap.to(card, {
+              duration: 0.4,
+              scale: 1,
+              opacity: 1,
+              display: 'block',
+              ease: 'power2.out'
+            });
+          } else {
+            gsap.to(card, {
+              duration: 0.4,
+              scale: 0.9,
+              opacity: 0,
+              display: 'none',
+              ease: 'power2.inOut'
+            });
+          }
+        });
+
+        // Force scrolltrigger refresh if needed based on new heights
+        setTimeout(() => {
+          if (typeof (window as any).ScrollTrigger !== 'undefined') {
+            (window as any).ScrollTrigger.refresh();
+          }
+        }, 450);
+      });
+    });
+
+    // Modal Logic
+    const openModal = (card: HTMLElement) => {
+      const title = card.getAttribute('data-title') || '';
+      const desc = card.getAttribute('data-description') || '';
+      const img = card.getAttribute('data-image') || '';
+
+      if (modalImage) modalImage.src = img;
+      if (modalTitle) modalTitle.textContent = title;
+      if (modalDescription) modalDescription.textContent = desc;
+
+      // Prevent body scrolling
+      document.body.style.overflow = 'hidden';
+
+      // Animate Modal In
+      gsap.to(modal, {
+        opacity: 1,
+        pointerEvents: 'auto',
+        duration: 0.3,
+        ease: 'power2.out'
+      });
+
+      gsap.to(modalContent, {
+        scale: 1,
+        opacity: 1,
+        y: 0,
+        duration: 0.4,
+        ease: 'back.out(1.2)',
+        delay: 0.1
+      });
+    };
+
+    const closeModal = () => {
+      // Re-enable body scrolling
+      document.body.style.overflow = '';
+
+      // Animate Modal Out
+      gsap.to(modalContent, {
+        scale: 0.95,
+        opacity: 0,
+        y: 20,
+        duration: 0.2,
+        ease: 'power2.in'
+      });
+
+      gsap.to(modal, {
+        opacity: 0,
+        pointerEvents: 'none',
+        duration: 0.3,
+        ease: 'power2.in',
+        delay: 0.1
+      });
+    };
+
+    // Card click listener
+    cards.forEach(card => {
+      card.addEventListener('click', () => openModal(card as HTMLElement));
+    });
+
+    // Close listeners
+    if (closeBtn) closeBtn.addEventListener('click', closeModal);
+    if (backdrop) backdrop.addEventListener('click', closeModal);
+
+    // Close on escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal.style.pointerEvents === 'auto') {
+        closeModal();
+      }
+    });
+  }
+
+  // Handle initialization for Astro View Transitions
+  document.addEventListener('astro:page-load', initCuratedExperiences);
+  document.addEventListener('DOMContentLoaded', initCuratedExperiences);
+</script>

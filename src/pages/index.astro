@@ -4,7 +4,7 @@ import Header from '../components/Header.astro';
 import FullscreenMenu from '../components/FullscreenMenu.astro';
 import Hero from '../components/Hero.astro';
 import VillaCollection from '../components/VillaCollection.astro';
-import Experiences from '../components/Experiences.astro';
+import CuratedExperiences from '../components/CuratedExperiences.astro';
 import Journal from '../components/Journal.astro';
 import CTA from '../components/CTA.astro';
 import Footer from '../components/Footer.astro';
@@ -39,7 +39,7 @@ const ctaButtonText = homeData?.ctaButtonText ?? "Inquire Now";
         videoUrl={heroVideoUrl}
       />
       <VillaCollection sectionTitle={villaSectionTitle} />
-      <Experiences />
+      <CuratedExperiences />
       <Journal sectionLabel={journalLabel} readAllLabel={journalReadAll} />
       <CTA title={ctaTitle} buttonText={ctaButtonText} />
     </main>
