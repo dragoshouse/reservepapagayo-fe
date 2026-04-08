@@ -1,0 +1,152 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import FullscreenMenu from '../components/FullscreenMenu.astro';
+import CTA from '../components/CTA.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<Layout title="The Peninsula">
+  <Header />
+  <FullscreenMenu />
+
+  <div class="main-content-wrap relative z-10 bg-white">
+    <main>
+      <!-- 1. Hero Section -->
+      <section class="relative h-screen w-full" data-theme="dark">
+        <!-- Background Image -->
+        <img
+          src="https://peninsulapapagayo.com/wp-content/uploads/2019/12/COS_2747-2160x0-c-default.jpg"
+          alt="The Peninsula Papagayo"
+          class="absolute inset-0 w-full h-full object-cover"
+        />
+        <!-- Gradient Overlay -->
+        <div class="absolute inset-0 bg-gradient-to-b from-black/60 to-transparent"></div>
+
+        <!-- Content -->
+        <div class="absolute inset-0 flex flex-col justify-end p-8 md:p-16 lg:p-24 z-10 text-white">
+          <h1 class="text-6xl md:text-8xl lg:text-9xl font-serif mb-4">The Peninsula</h1>
+          <p class="text-xl md:text-2xl font-light tracking-wide max-w-2xl">
+            More than a destination. A protected sanctuary.
+          </p>
+        </div>
+      </section>
+
+      <!-- 2. The Whisper / Manifesto -->
+      <section class="min-h-screen flex items-center justify-center px-8 md:px-16 lg:px-24 py-32 bg-[#F9F9F9] text-gray-900" data-theme="light">
+        <div class="max-w-5xl mx-auto text-center">
+          <p class="text-3xl md:text-5xl lg:text-6xl font-serif leading-relaxed">
+            <span class="gsap-reveal-text inline-block opacity-0 translate-y-8">Here, the Pacific Ocean meets untamed jungle canopy.</span>
+            <span class="gsap-reveal-text inline-block opacity-0 translate-y-8">But beyond the staggering beauty lies something rarer:</span>
+            <span class="gsap-reveal-text inline-block opacity-0 translate-y-8">absolute peace of mind.</span>
+            <span class="gsap-reveal-text inline-block opacity-0 translate-y-8">A gated, 1,400-acre private reserve where time slows down</span>
+            <span class="gsap-reveal-text inline-block opacity-0 translate-y-8">and the outside world falls away.</span>
+          </p>
+        </div>
+      </section>
+
+      <!-- 3. The Spotlight (Sticky Scrollytelling) -->
+      <section class="min-h-[200vh] bg-white text-gray-900 px-8 md:px-16 lg:px-24" data-theme="light">
+        <div class="flex flex-col lg:flex-row max-w-7xl mx-auto w-full relative">
+
+          <!-- Left Column (Sticky) -->
+          <div class="lg:w-1/2 lg:sticky lg:top-0 lg:h-screen flex flex-col justify-center lg:pr-12 py-16 lg:py-0">
+            <span class="text-sm font-sans tracking-widest uppercase mb-6 text-gray-500">A Haven for Solo Travelers</span>
+            <h2 class="text-4xl md:text-5xl lg:text-6xl font-serif mb-8 leading-tight">
+              Uncompromising Security.<br/>
+              Unparalleled Freedom.
+            </h2>
+            <p class="text-lg md:text-xl font-light leading-relaxed text-gray-700">
+              Recognized by Travel + Leisure as one of the world's premier destinations for solo travelers, Peninsula Papagayo offers an environment of effortless safety. Whether exploring miles of private trails at dawn or dining under the stars, the implicit promise is absolute security. It is a place where discerning women, families, and solo adventurers find the ultimate luxury: the freedom to simply be.
+            </p>
+          </div>
+
+          <!-- Right Column (Scrolling Images) -->
+          <div class="lg:w-1/2 flex flex-col gap-16 lg:gap-32 py-16 lg:py-32">
+            <div class="w-full aspect-[3/4] overflow-hidden">
+              <img src="https://images.unsplash.com/photo-1596436889106-be35e843f974?q=80&w=2000" alt="Luxury nature resort" class="w-full h-full object-cover" />
+            </div>
+            <div class="w-full aspect-[4/3] overflow-hidden">
+              <img src="https://images.unsplash.com/photo-1540541338287-41700207dee6?q=80&w=2000" alt="Untamed jungle canopy" class="w-full h-full object-cover" />
+            </div>
+            <div class="w-full aspect-[3/4] overflow-hidden">
+              <img src="https://images.unsplash.com/photo-1583417647209-6fa70416cd62?q=80&w=2000" alt="Pacific Ocean meets the shore" class="w-full h-full object-cover" />
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- 4. The Ecosystem -->
+      <section class="py-32 px-8 md:px-16 lg:px-24 bg-[#1A1A1A] text-white" data-theme="dark">
+        <div class="max-w-7xl mx-auto">
+          <h2 class="text-4xl md:text-5xl lg:text-6xl font-serif mb-16 text-center">The Ecosystem</h2>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
+            <!-- Card 1 -->
+            <div class="flex flex-col border-t border-white/20 pt-8">
+              <h3 class="text-2xl font-serif mb-4">Marina Papagayo</h3>
+              <p class="text-white/70 font-light leading-relaxed">
+                A deep-water haven for superyachts.
+              </p>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="flex flex-col border-t border-white/20 pt-8">
+              <h3 class="text-2xl font-serif mb-4">Arnold Palmer Course</h3>
+              <p class="text-white/70 font-light leading-relaxed">
+                18 holes of championship golf over the ocean.
+              </p>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="flex flex-col border-t border-white/20 pt-8">
+              <h3 class="text-2xl font-serif mb-4">Prieta Bay Beach Club</h3>
+              <p class="text-white/70 font-light leading-relaxed">
+                Exclusive access to pristine sands.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <CTA title="Your Sanctuary Awaits" buttonText="Inquire Now" />
+    </main>
+  </div>
+
+  <Footer />
+  <!-- Spacer for the fixed footer to reveal naturally -->
+  <div id="footer-spacer"></div>
+</Layout>
+
+<script>
+  import gsap from 'gsap';
+  import ScrollTrigger from 'gsap/ScrollTrigger';
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  function initAnimations() {
+    const revealElements = document.querySelectorAll('.gsap-reveal-text');
+
+    if (revealElements.length === 0) return;
+
+    revealElements.forEach((el) => {
+      gsap.to(el, {
+        scrollTrigger: {
+          trigger: el,
+          start: 'top 85%',
+        },
+        y: 0,
+        opacity: 1,
+        duration: 1.2,
+        ease: 'power3.out',
+      });
+    });
+  }
+
+  // Run on initial load
+  document.addEventListener('DOMContentLoaded', initAnimations);
+
+  // Re-run on Astro page transitions
+  document.addEventListener('astro:page-load', initAnimations);
+</script>
