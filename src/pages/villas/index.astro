@@ -4,30 +4,36 @@ import Header from '../../components/Header.astro';
 import FullscreenMenu from '../../components/FullscreenMenu.astro';
 import CTA from '../../components/CTA.astro';
 import Footer from '../../components/Footer.astro';
-import { Image } from 'astro:assets';
+import { sanityClient } from 'sanity:client';
+import { urlFor } from '../../utils/sanity';
 
-// Dummy imports for images
-import featureVilla from '../../assets/feature-villa.jpg';
-import expCulinary from '../../assets/exp-culinary.jpg';
+type SanityVilla = {
+  title: string;
+  slug: string;
+  heroBackgroundImage: unknown;
+  locationZone: string | null;
+  bedrooms: number | null;
+  bathrooms: number | null;
+};
 
-const dummyVillas = [
-  {
-    slug: 'the-hive',
-    name: 'The Hive',
-    bedrooms: '6 Bedrooms',
-    excerpt: 'An architectural masterpiece embedded in the canopy, offering sweeping ocean views and unparalleled privacy.',
-    image: featureVilla,
-    alt: 'The Hive Exterior'
-  },
-  {
-    slug: 'esmeralda',
-    name: 'Esmeralda',
-    bedrooms: '5 Bedrooms',
-    excerpt: 'A sanctuary of tranquility featuring lush tropical surroundings and expansive indoor-outdoor living spaces.',
-    image: expCulinary,
-    alt: 'Esmeralda Interior'
-  }
-];
+const query = `*[_type == "villa" && status == "published"] | order(_createdAt desc) {
+  title,
+  "slug": slug.current,
+  heroBackgroundImage,
+  locationZone,
+  bedrooms,
+  bathrooms
+}`;
+
+const villas = (await sanityClient.fetch<SanityVilla[]>(query)).map((villa) => ({
+  ...villa,
+  imageUrl: villa.heroBackgroundImage ? urlFor(villa.heroBackgroundImage).url() : null
+}));
+
+const formatBathrooms = (value: number | null) => {
+  if (value === null || Number.isNaN(value)) return '—';
+  return Number.isInteger(value) ? `${value}` : `${value}`;
+};
 ---
 
 <Layout title="The Collection | Experience Papagayo">
@@ -35,51 +41,58 @@ const dummyVillas = [
   <FullscreenMenu />
 
   <div class="main-content-wrap relative z-10 bg-white">
-    <main data-theme="light" class="pt-32 pb-24 md:pt-48 md:pb-32">
-      <!-- Archive Header -->
+    <main class="pt-32 pb-24 md:pt-48 md:pb-32">
       <header class="px-6 md:px-12 mb-24 md:mb-40">
         <h1 class="text-6xl md:text-8xl lg:text-[10vw] font-serif tracking-tight leading-none text-[#1A1A1A]">
           The<br />Collection
         </h1>
       </header>
 
-      <!-- Villa List -->
-      <section class="villa-archive-list flex flex-col w-full">
-        {dummyVillas.map((villa, index) => {
-          const isEven = index % 2 === 0;
-          return (
-            <article class={`villa-item grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 lg:gap-24 items-center min-h-[80vh] px-6 md:px-12 mb-24 md:mb-40 ${!isEven ? 'md:grid-flow-col-dense' : ''}`}>
-              <!-- Image Column -->
-              <div class={`villa-img-col w-full h-[60vh] md:h-[80vh] overflow-hidden relative ${!isEven ? 'md:col-start-2' : ''}`}>
-                <a href={`/villas/${villa.slug}`} class="block w-full h-full">
-                  <div class="villa-img-wrap w-full h-full scale-[1.15] origin-center relative">
-                    <Image src={villa.image} alt={villa.alt} class="w-full h-full object-cover" loading={index === 0 ? "eager" : "lazy"} />
-                  </div>
-                </a>
-              </div>
+      <section data-theme="light" class="villa-archive-list flex flex-col w-full">
+        {villas.length === 0 ? (
+          <p class="text-center py-20">No villas found in Sanity.</p>
+        ) : (
+          villas.map((villa, index) => {
+            const isEven = index % 2 === 0;
+            return (
+              <article class={`villa-item grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 lg:gap-24 items-center min-h-[80vh] px-6 md:px-12 mb-24 md:mb-40 ${!isEven ? 'md:grid-flow-col-dense' : ''}`}>
+                <div class={`villa-img-col w-full h-[60vh] md:h-[80vh] overflow-hidden relative ${!isEven ? 'md:col-start-2' : ''}`}>
+                  <a href={`/villas/${villa.slug}`} class="block w-full h-full">
+                    <div class="villa-img-wrap w-full h-full scale-[1.15] origin-center relative">
+                      {villa.imageUrl && (
+                        <img
+                          src={villa.imageUrl}
+                          alt={villa.title}
+                          class="w-full h-full object-cover"
+                          loading={index === 0 ? 'eager' : 'lazy'}
+                        />
+                      )}
+                      <div class="absolute inset-0 bg-black/25"></div>
+                    </div>
+                  </a>
+                </div>
 
-              <!-- Text Column -->
-              <div class={`villa-text-col flex flex-col justify-center max-w-xl mx-auto md:mx-0 ${!isEven ? 'md:col-start-1' : ''}`}>
-                <h2 class="text-4xl md:text-6xl font-serif text-[#1A1A1A] mb-4 leading-tight">
-                  <a href={`/villas/${villa.slug}`} class="hover:opacity-80 transition-opacity">{villa.name}</a>
-                </h2>
-                <span class="text-sm tracking-widest uppercase font-medium text-black/60 mb-8 block">
-                  {villa.bedrooms}
-                </span>
-                <p class="text-lg md:text-xl leading-relaxed text-black/80 mb-10">
-                  {villa.excerpt}
-                </p>
-                <a href={`/villas/${villa.slug}`} class="inline-flex items-center text-sm tracking-widest uppercase font-semibold text-[#1A1A1A] group">
-                  <span class="mr-4">Discover</span>
-                  <span class="block w-12 h-[1px] bg-[#1A1A1A] group-hover:w-16 transition-all duration-300"></span>
-                </a>
-              </div>
-            </article>
-          );
-        })}
+                <div class={`villa-text-col flex flex-col justify-center max-w-xl mx-auto md:mx-0 ${!isEven ? 'md:col-start-1' : ''}`}>
+                  <h2 class="text-4xl md:text-6xl font-serif text-[#1A1A1A] mb-4 leading-tight">
+                    <a href={`/villas/${villa.slug}`} class="hover:opacity-80 transition-opacity">{villa.title}</a>
+                  </h2>
+                  <span class="text-sm tracking-widest uppercase font-medium text-black/60 mb-4 block">
+                    {villa.locationZone ?? '—'}
+                  </span>
+                  <p class="text-lg md:text-xl leading-relaxed text-black/80 mb-10">
+                    {(villa.bedrooms ?? '—')} Bedrooms · {formatBathrooms(villa.bathrooms)} Bathrooms
+                  </p>
+                  <a href={`/villas/${villa.slug}`} class="inline-flex items-center text-sm tracking-widest uppercase font-semibold text-[#1A1A1A] group">
+                    <span class="mr-4">Discover</span>
+                    <span class="block w-12 h-[1px] bg-[#1A1A1A] group-hover:w-16 transition-all duration-300"></span>
+                  </a>
+                </div>
+              </article>
+            );
+          })
+        )}
       </section>
 
-      <!-- CTA inside main-content-wrap but after main themed block -->
       <CTA title="Curate Your <br class='hidden md:block'/>Escape" buttonText="Inquire" />
     </main>
   </div>
@@ -89,8 +102,8 @@ const dummyVillas = [
 </Layout>
 
 <script>
-  import { gsap } from "gsap";
-  import { ScrollTrigger } from "gsap/ScrollTrigger";
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
   gsap.registerPlugin(ScrollTrigger);
 
@@ -103,11 +116,11 @@ const dummyVillas = [
       if (imgWrap) {
         gsap.to(imgWrap, {
           yPercent: -15,
-          ease: "none",
+          ease: 'none',
           scrollTrigger: {
             trigger: item,
-            start: "top bottom",
-            end: "bottom top",
+            start: 'top bottom',
+            end: 'bottom top',
             scrub: true
           }
         });
@@ -115,7 +128,6 @@ const dummyVillas = [
     });
   }
 
-  // Initialize on page load
   document.addEventListener('astro:page-load', initArchiveParallax);
   if (document.readyState === 'complete' || document.readyState === 'interactive') {
     initArchiveParallax();

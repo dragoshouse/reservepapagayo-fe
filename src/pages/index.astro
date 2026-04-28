@@ -38,7 +38,9 @@ const ctaButtonText = homeData?.ctaButtonText ?? "Inquire Now";
         bgUrl={heroBgUrl}
         videoUrl={heroVideoUrl}
       />
-      <VillaCollection sectionTitle={villaSectionTitle} />
+      <section data-theme="light">
+        <VillaCollection sectionTitle={villaSectionTitle} />
+      </section>
       <CuratedExperiences />
       <Journal sectionLabel={journalLabel} readAllLabel={journalReadAll} />
       <CTA title={ctaTitle} buttonText={ctaButtonText} />
