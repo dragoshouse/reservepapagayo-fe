@@ -2,13 +2,7 @@
 import { sanityClient } from 'sanity:client';
 import { urlFor } from '../utils/sanity';
 
-const {
-  sectionTitle = 'Villa Collection',
-  showOnlyFeatured = false
-}: {
-  sectionTitle?: string;
-  showOnlyFeatured?: boolean;
-} = Astro.props;
+const { sectionTitle = 'Villa Collection' }: { sectionTitle?: string } = Astro.props;
 
 type SanityVilla = {
   title: string;
@@ -17,24 +11,18 @@ type SanityVilla = {
   locationZone: string | null;
   bedrooms: number | null;
   bathrooms: number | null;
-  isFeatured: boolean | null;
-  featuredPriority: number | null;
 };
 
-const query = `*[_type == "villa" && status == "published" ${showOnlyFeatured ? '&& isFeatured == true' : ''}] | order(featuredPriority asc, _createdAt desc) {
+const query = `*[_type == "villa" && status == "published"] | order(_createdAt desc) {
   title,
   "slug": slug.current,
   heroBackgroundImage,
   locationZone,
   bedrooms,
-  bathrooms,
-  isFeatured,
-  featuredPriority
+  bathrooms
 }`;
 
-const useSanityClient = () => sanityClient;
-
-const villas = (await useSanityClient().fetch<SanityVilla[]>(query)).map((villa) => ({
+const villas = (await sanityClient.fetch<SanityVilla[]>(query)).map((villa) => ({
   ...villa,
   imageUrl: villa.heroBackgroundImage ? urlFor(villa.heroBackgroundImage).url() : null
 }));
@@ -49,7 +37,7 @@ const formatBathrooms = (value: number | null) => {
   <h2 class="sr-only">{sectionTitle}</h2>
 
   {villas.length === 0 ? (
-    <p class="text-center text-black/60 py-12">No villas currently published.</p>
+    <p class="text-center py-20">No villas found in Sanity.</p>
   ) : (
     <div id="villa-pin-container" class="h-screen w-full flex items-center overflow-hidden">
       <div id="villa-track" class="flex flex-nowrap w-[max-content] h-[80vh] items-center px-[5vw] md:px-[10vw] gap-8 md:gap-16">
