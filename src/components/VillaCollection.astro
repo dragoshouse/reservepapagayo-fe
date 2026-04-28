@@ -1,75 +1,128 @@
 ---
-import { Image } from 'astro:assets';
 import featureVilla from '../assets/feature-villa.jpg';
 import expCulinary from '../assets/exp-culinary.jpg';
 import expFamily from '../assets/exp-family.jpg';
 import expSpa from '../assets/exp-spa.jpg';
+import { sanityClient } from 'sanity:client';
 
-const { sectionTitle } = Astro.props;
+const { sectionTitle, showOnlyFeatured = false } = Astro.props;
 
-const villas = [
+const useSanityClient = () => sanityClient;
+const client = useSanityClient();
+
+type VillaCard = {
+  title: string;
+  slug: string;
+  heroBackgroundImage: string | null;
+  bedrooms: number | null;
+  bathrooms: number | null;
+  locationZone: string | null;
+};
+
+const baseQuery = showOnlyFeatured
+  ? '*[_type == "villa" && status == "published" && isFeatured == true] | order(featuredPriority asc)'
+  : '*[_type == "villa" && status == "published"] | order(_createdAt desc)';
+
+const villasQuery = `${baseQuery}{
+  title,
+  "slug": slug.current,
+  "heroBackgroundImage": heroBackgroundImage.asset->url,
+  bedrooms,
+  bathrooms,
+  locationZone
+}`;
+
+let villas: VillaCard[] = [];
+
+try {
+  villas = await client.fetch<VillaCard[]>(villasQuery);
+} catch {
+  villas = [];
+}
+
+const fallbackVillas: VillaCard[] = [
   {
-    name: "Five-Bedroom Estate at Prieta Bay",
-    image: featureVilla,
-    alt: "Luxurious five-bedroom estate at Prieta Bay"
+    title: 'Blueprint: Prieta Bay Signature Estate',
+    slug: 'blueprint-prieta-bay-signature-estate',
+    heroBackgroundImage: featureVilla.src,
+    bedrooms: 5,
+    bathrooms: 5.5,
+    locationZone: 'Prieta Bay'
   },
   {
-    name: "Ocean View Canopy Villa",
-    image: expCulinary,
-    alt: "Stunning ocean view canopy villa with outdoor dining"
+    title: 'Blueprint: Ocean View Canopy Villa',
+    slug: 'blueprint-ocean-view-canopy-villa',
+    heroBackgroundImage: expCulinary.src,
+    bedrooms: 4,
+    bathrooms: 4.5,
+    locationZone: 'Canopy Ridge'
   },
   {
-    name: "Tropical Jungle Retreat",
-    image: expFamily,
-    alt: "Private tropical jungle retreat perfect for families"
+    title: 'Blueprint: Tropical Jungle Retreat',
+    slug: 'blueprint-tropical-jungle-retreat',
+    heroBackgroundImage: expFamily.src,
+    bedrooms: 4,
+    bathrooms: 4,
+    locationZone: 'Jungle Preserve'
   },
   {
-    name: "Cliffside Sanctuary",
-    image: expSpa,
-    alt: "Serene cliffside sanctuary with private spa amenities"
+    title: 'Blueprint: Cliffside Sanctuary',
+    slug: 'blueprint-cliffside-sanctuary',
+    heroBackgroundImage: expSpa.src,
+    bedrooms: 3,
+    bathrooms: 3.5,
+    locationZone: 'Cliffside'
   }
 ];
+
+const villaCards = villas.length > 0 ? villas : fallbackVillas;
+
+const formatBathrooms = (value: number | null) => {
+  if (value === null || Number.isNaN(value)) return '—';
+  return Number.isInteger(value) ? `${value}` : `${value}`;
+};
 ---
 
 <section id="villa-collection-section" class="relative h-screen w-full overflow-hidden bg-black" data-theme="dark">
   <h2 class="sr-only">{sectionTitle}</h2>
-  <!-- Sticky Container that gets pinned -->
   <div id="villa-pin-container" class="h-screen w-full flex items-center overflow-hidden">
-
-    <!-- The horizontal track that moves left -->
     <div id="villa-track" class="flex flex-nowrap w-[max-content] h-[80vh] items-center px-[5vw] md:px-[10vw] gap-8 md:gap-16">
-
-      {villas.map((villa, index) => (
-        <article
-          class="villa-card relative w-[85vw] md:w-[45vw] h-full flex-shrink-0 overflow-hidden cursor-pointer group"
+      {villaCards.map((villa, index) => (
+        <a
+          href={`/villas/${villa.slug}`}
+          class="villa-card relative w-[85vw] md:w-[45vw] h-full flex-shrink-0 overflow-hidden cursor-pointer group block"
           data-index={index}
         >
-          <!-- Inner wrapper for Parallax Effect -->
           <div class="villa-image-wrapper absolute inset-0 w-full h-full scale-[1.1]">
-            <Image
-              src={villa.image}
-              alt={villa.alt}
+            <img
+              src={villa.heroBackgroundImage ?? featureVilla.src}
+              alt={villa.title}
               class="w-full h-full object-cover"
               loading="lazy"
             />
-            <!-- Dark Overlay for un-focused cards handled by JS, base overlay for text readability -->
-            <div class="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-500 z-10 pointer-events-none"></div>
+            <div class="absolute inset-0 bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity"></div>
           </div>
 
-          <!-- Bottom Text Area with Gradient -->
           <div class="absolute bottom-0 left-0 w-full p-6 md:p-10 bg-gradient-to-t from-black/80 via-black/40 to-transparent z-20 flex flex-col justify-end">
-            <h3 class="text-white font-serif text-2xl md:text-4xl leading-tight mb-4 transform translate-y-4 opacity-80 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
-              {villa.name}
+            <h3 class="text-white font-serif text-2xl md:text-4xl leading-tight mb-3 transform translate-y-4 opacity-80 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
+              {villa.title}
             </h3>
 
-            <button class="flex items-center text-white/90 text-sm tracking-widest uppercase opacity-0 transform translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 delay-100 focus:outline-none">
+            <p class="text-white/90 text-sm md:text-base tracking-[0.12em] uppercase mb-2 transform translate-y-4 opacity-70 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 delay-75">
+              {villa.locationZone ?? 'Reserve Papagayo'}
+            </p>
+
+            <p class="text-white/85 text-xs md:text-sm tracking-[0.18em] uppercase mb-4 transform translate-y-4 opacity-70 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 delay-100">
+              {(villa.bedrooms ?? '—')} BR | {formatBathrooms(villa.bathrooms)} BA
+            </p>
+
+            <span class="flex items-center text-white/90 text-sm tracking-widest uppercase opacity-0 transform translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 delay-150">
               <span class="mr-3">Discover</span>
               <span class="block w-8 h-[1px] bg-white"></span>
-            </button>
+            </span>
           </div>
-        </article>
+        </a>
       ))}
-
     </div>
   </div>
 </section>
@@ -85,78 +138,63 @@ const villas = [
   const cards = document.querySelectorAll(".villa-card");
 
   if (section && track && cards.length > 0) {
-
-    // 1. Horizontal Scroll Animation
-    const scrollTween = gsap.to(track, {
+    gsap.to(track, {
       x: () => -(track.scrollWidth - window.innerWidth),
       ease: "none",
       scrollTrigger: {
         trigger: section,
         pin: true,
-        scrub: 1, // Smooth scrubbing
+        scrub: 1,
         start: "top top",
         end: () => `+=${track.scrollWidth - window.innerWidth}`,
-        invalidateOnRefresh: true // Recalculate on resize
+        invalidateOnRefresh: true
       }
     });
 
-    // 2. Inner Image Parallax (moving image opposite to scroll direction slightly)
     cards.forEach((card) => {
       const imageWrapper = card.querySelector(".villa-image-wrapper");
 
       if (imageWrapper) {
-         gsap.to(imageWrapper, {
-          xPercent: 20, // Move image right as track moves left
+        gsap.to(imageWrapper, {
+          xPercent: 20,
           ease: "none",
           scrollTrigger: {
-            trigger: section, // Tie to the section pinning
+            trigger: section,
             start: "top top",
             end: () => `+=${track.scrollWidth - window.innerWidth}`,
-            scrub: true,
+            scrub: true
           }
         });
       }
     });
 
-    // 3. Card Focus Effect (Scale and Brightness based on position)
-    // We update this dynamically on update of the main scrollTrigger
     ScrollTrigger.create({
       trigger: section,
       start: "top top",
       end: () => `+=${track.scrollWidth - window.innerWidth}`,
-      onUpdate: (self) => {
+      onUpdate: () => {
         const viewportCenter = window.innerWidth / 2;
 
         cards.forEach(card => {
           const rect = card.getBoundingClientRect();
           const cardCenter = rect.left + rect.width / 2;
-
-          // Calculate distance from center of viewport
           const distance = Math.abs(viewportCenter - cardCenter);
-          // Normalize distance (0 when perfectly centered, increasing as it moves away)
-          // Threshold where effect maxes out (e.g., full card width)
           const threshold = rect.width;
 
           let progress = 1 - (distance / threshold);
-          // Clamp progress between 0 and 1
           progress = Math.max(0, Math.min(1, progress));
-
-          // Apply scale and opacity/brightness based on progress
-          // Centered = scale 1.02, opacity 1
-          // Far away = scale 1.0, opacity 0.5
 
           const scale = 1 + (0.02 * progress);
           const opacity = 0.5 + (0.5 * progress);
 
           gsap.set(card, {
-             scale: scale,
-             opacity: opacity
+            scale,
+            opacity
           });
         });
       }
     });
 
-    // Initialize initial state for cards
     gsap.set(cards, { opacity: 0.5, scale: 1 });
   }
 </script>
