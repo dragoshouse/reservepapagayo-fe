@@ -16,7 +16,7 @@ type SanityVilla = {
   bathrooms: number | null;
 };
 
-const query = `*[_type == "villa" && status == "published"] | order(_createdAt desc) {
+const query = `*[_type == "villa"] | order(_createdAt desc) {
   title,
   "slug": slug.current,
   heroBackgroundImage,
@@ -50,7 +50,9 @@ const formatBathrooms = (value: number | null) => {
 
       <section data-theme="light" class="villa-archive-list flex flex-col w-full">
         {villas.length === 0 ? (
-          <p class="text-center py-20">No villas found in Sanity.</p>
+          <section class="w-full bg-white py-32 flex items-center justify-center" data-theme="light">
+            <p class="text-xl text-black/50 font-light tracking-wide">Curating our exclusive collection...</p>
+          </section>
         ) : (
           villas.map((villa, index) => {
             const isEven = index % 2 === 0;

@@ -13,7 +13,7 @@ type SanityVilla = {
   bathrooms: number | null;
 };
 
-const query = `*[_type == "villa" && status == "published"] | order(_createdAt desc) {
+const query = `*[_type == "villa"] | order(_createdAt desc) {
   title,
   "slug": slug.current,
   heroBackgroundImage,
@@ -37,7 +37,9 @@ const formatBathrooms = (value: number | null) => {
   <h2 class="sr-only">{sectionTitle}</h2>
 
   {villas.length === 0 ? (
-    <p class="text-center py-20">No villas found in Sanity.</p>
+    <section class="w-full bg-white py-32 flex items-center justify-center" data-theme="light">
+            <p class="text-xl text-black/50 font-light tracking-wide">Curating our exclusive collection...</p>
+          </section>
   ) : (
     <div id="villa-pin-container" class="h-screen w-full flex items-center overflow-hidden">
       <div id="villa-track" class="flex flex-nowrap w-[max-content] h-[80vh] items-center px-[5vw] md:px-[10vw] gap-8 md:gap-16">
