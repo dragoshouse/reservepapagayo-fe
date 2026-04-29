@@ -25,10 +25,17 @@ const { headline, scrollLabel, bgUrl, videoUrl } = Astro.props;
 
   <div class="absolute inset-0 w-full h-full bg-black/25 z-10 pointer-events-none"></div>
 
-  <div class="relative z-20 text-center px-4 max-w-4xl">
+  <div class="relative z-20 text-center px-4 max-w-4xl flex flex-col items-center">
     <h1 class="text-white font-serif text-5xl md:text-7xl lg:text-8xl tracking-tight leading-tight opacity-0 translate-y-8" data-hero-headline>
-      {headline}
+      A private peninsula shaped by nature<br/>
+      <span class="text-sm tracking-widest uppercase mt-4 block font-sans">Peninsula Papagayo, Costa Rica</span>
     </h1>
+    <p class="text-white/80 font-light text-lg md:text-xl mt-6 font-serif opacity-0 translate-y-8" data-hero-subtitle>
+      Spaces shaped by landscape, light, and quiet intention.
+    </p>
+    <a href="/villas" class="inline-block border border-white text-white px-8 py-3 mt-8 text-sm uppercase tracking-widest hover:bg-white hover:text-black transition-colors duration-300 opacity-0 translate-y-8" data-hero-cta>
+      → View availability
+    </a>
   </div>
 
   <!-- Scroll Indicator -->
@@ -46,12 +53,13 @@ const { headline, scrollLabel, bgUrl, videoUrl } = Astro.props;
 
   gsap.registerPlugin(ScrollTrigger);
 
-  // Fade-up animation for the headline
-  gsap.to('[data-hero-headline]', {
+  // Fade-up animation for the headline, subtitle, and CTA
+  gsap.to(['[data-hero-headline]', '[data-hero-subtitle]', '[data-hero-cta]'], {
     y: 0,
     opacity: 1,
     duration: 1.5,
     ease: 'power3.out',
+    stagger: 0.2,
     delay: 0.2
   });
 

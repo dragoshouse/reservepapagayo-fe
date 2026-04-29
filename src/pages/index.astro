@@ -38,12 +38,34 @@ const ctaButtonText = homeData?.ctaButtonText ?? "Inquire Now";
         bgUrl={heroBgUrl}
         videoUrl={heroVideoUrl}
       />
-      <section data-theme="light">
+
+      <!-- Block A: Mental Shift -->
+      <section class="text-center max-w-4xl mx-auto px-4 py-32" data-theme="light">
+        <h2 class="text-3xl md:text-5xl font-serif mb-6 text-black">Not all stays are the same.</h2>
+        <p class="text-lg text-black/70 font-light">Each villa offers a distinct way of experiencing Papagayo—through architecture, setting, and rhythm.</p>
+      </section>
+
+      <section data-theme="dark">
         <VillaCollection sectionTitle={villaSectionTitle} />
       </section>
+
+      <!-- Block B: Experience Intro -->
+      <section class="text-center max-w-4xl mx-auto px-4 py-32" data-theme="light">
+        <h2 class="text-3xl md:text-5xl font-serif mb-6 text-black">More than a place to stay</h2>
+        <p class="text-lg text-black/70 font-light">A dedicated concierge, daily service, and curated experiences—designed to make every moment effortless.</p>
+      </section>
+
       <CuratedExperiences />
       <Journal sectionLabel={journalLabel} readAllLabel={journalReadAll} />
-      <CTA title={ctaTitle} buttonText={ctaButtonText} />
+
+      <!-- Block C: Sensorial & Final CTA -->
+      <section class="text-center bg-[#F9F7F3] py-40 px-4" data-theme="light">
+        <p class="text-xl mb-2 text-black/80 font-light">Designed for slower mornings, open afternoons, and long evenings.</p>
+        <p class="text-xl italic font-serif mb-12 text-black/80">A stay that feels lived, not staged.</p>
+        <h2 class="text-4xl md:text-6xl font-serif mb-12 text-black">Find your place in Papagayo</h2>
+        <a href="/contact" class="inline-block border-b border-black pb-1 text-black uppercase tracking-widest text-sm hover:opacity-60 transition-opacity">→ View availability</a>
+      </section>
+
     </main>
   </div>
 
