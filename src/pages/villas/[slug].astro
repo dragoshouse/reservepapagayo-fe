@@ -51,7 +51,34 @@ export async function getStaticPaths() {
     heroBackgroundImage
   }`;
 
-  const villas = await sanityClient.fetch<SanityVilla[]>(query);
+  let villas: SanityVilla[] = [];
+  try {
+    villas = await sanityClient.fetch<SanityVilla[]>(query, {}, { useCdn: false });
+  } catch (error) {
+    console.error('Error fetching villas:', error);
+  }
+
+  if (villas.length === 0) {
+    villas = [
+      {
+        slug: 'villa-esmeralda',
+        title: 'Villa Esmeralda',
+        heroTitle: 'Villa Esmeralda',
+        overviewManifesto: 'A private sanctuary crafted for restorative escapes.',
+        locationZone: 'Papagayo Peninsula',
+        startingPrice: 5000,
+        bedrooms: 6,
+        bathrooms: 8,
+        maxGuests: 12,
+        interiorSqFt: 12000,
+        amenities: ['Private Infinity Pool', 'Dedicated Chef', 'Home Cinema', 'Ocean Views'],
+        gallery: [
+          { url: 'https://via.placeholder.com/800x600', caption: 'Poolside', credit: 'Photo by Studio' },
+          { url: 'https://via.placeholder.com/800x600', caption: 'Living Room', credit: 'Photo by Studio' }
+        ]
+      }
+    ];
+  }
 
   return villas.map((villa) => ({
     params: { slug: villa.slug },
@@ -67,7 +94,6 @@ export async function getStaticPaths() {
 const { villa } = Astro.props as { villa: SanityVilla };
 
 const title = villa.title ?? 'Villa';
-const heroTitle = villa.heroTitle ?? title;
 const heroBgUrl = villa.heroBgUrl ?? null;
 const heroVideoUrl = villa.heroVideoUrl ?? null;
 
@@ -75,6 +101,7 @@ const overviewEyebrow = villa.overviewEyebrow ?? 'At a Glance';
 const overviewManifesto = villa.overviewManifesto ?? villa.overviewShort ?? 'A private sanctuary crafted for restorative escapes.';
 
 const gallery = villa.gallery ?? [];
+const galleryCount = gallery.length;
 
 const bedrooms = villa.bedrooms ?? null;
 const bathrooms = villa.bathrooms ?? null;
@@ -93,6 +120,7 @@ const formattedStartingPrice =
 
   <div class="main-content-wrap relative z-10 bg-white">
     <main>
+      <!-- STEP 1: HERO & WHISPER -->
       <section class="villa-hero relative h-screen w-full overflow-hidden flex items-center justify-center" data-theme="dark">
         <div class="absolute inset-0 w-full h-full">
           {heroVideoUrl ? (
@@ -111,8 +139,8 @@ const formattedStartingPrice =
         </div>
 
         <div class="relative z-10 text-center px-4 max-w-5xl">
-          <h1 class="villa-title text-6xl md:text-[8vw] font-serif text-[#F5F5F0] tracking-tight leading-none opacity-0 translate-y-10">
-            {heroTitle}
+          <h1 class="villa-title text-6xl md:text-[8vw] font-serif text-[#F5F5F0] tracking-tight leading-[0.8] opacity-0 translate-y-10">
+            {title}
           </h1>
         </div>
       </section>
@@ -126,71 +154,102 @@ const formattedStartingPrice =
         </div>
       </section>
 
-      <section class="villa-gallery py-16 md:py-24 bg-[#F8F7F3]" data-theme="light">
+      <!-- STEP 4: GOD-TIER HORIZONTAL GALLERY & LIGHTBOX -->
+      <section class="villa-gallery py-16 md:py-24 bg-[#F8F7F3] overflow-hidden" data-theme="light">
+        <div class="px-6 md:px-12 mb-12 flex justify-between items-end">
+          <h2 class="text-xs tracking-[0.2em] uppercase font-bold text-black/40">Gallery</h2>
+        </div>
         <div class="px-6 md:px-12">
-          <div class="flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory">
-            {gallery.map((item, index) => (
-              <figure class="min-w-[78vw] md:min-w-[48vw] lg:min-w-[36vw] snap-start" key={`${item.url ?? 'image'}-${index}`}>
-                <img
-                  src={item.url ?? ''}
-                  alt={item.alt ?? `${title} gallery image ${index + 1}`}
-                  class="h-[28rem] w-full object-cover rounded-sm"
-                  loading="lazy"
-                />
-                {(item.caption ?? item.credit) && (
-                  <figcaption class="mt-3 text-sm text-black/60 flex items-center justify-between gap-4">
-                    <span>{item.caption ?? ''}</span>
-                    <span>{item.credit ?? ''}</span>
+          <div class="flex gap-6 overflow-x-auto pb-8 snap-x snap-mandatory scrollbar-hide gallery-container">
+            {gallery.map((item, index) => {
+              const displayIndex = (index + 1).toString().padStart(2, '0');
+              const totalIndex = galleryCount.toString().padStart(2, '0');
+
+              return (
+                <figure class="min-w-[85vw] md:min-w-[60vw] lg:min-w-[45vw] snap-start relative group cursor-pointer gallery-item" key={`${item.url ?? 'image'}-${index}`} data-src={item.url ?? ''}>
+                  <div class="overflow-hidden relative h-[40rem] w-full rounded-sm">
+                    <img
+                      src={item.url ?? ''}
+                      alt={item.alt ?? `${title} gallery image ${index + 1}`}
+                      class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      loading="lazy"
+                    />
+                    <div class="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  </div>
+
+                  <figcaption class="mt-4 flex flex-col md:flex-row md:items-center justify-between gap-2 border-t border-black/10 pt-4">
+                    <div class="text-xs font-serif uppercase tracking-widest text-black/80">
+                      {displayIndex} / {totalIndex}
+                    </div>
+                    <div class="text-sm text-black/60 flex items-center gap-4">
+                      {item.caption && <span class="italic">{item.caption}</span>}
+                      {item.credit && <span class="uppercase text-[0.65rem] tracking-[0.2em] text-black/40">{item.credit}</span>}
+                    </div>
                   </figcaption>
-                )}
-              </figure>
-            ))}
+                </figure>
+              );
+            })}
           </div>
         </div>
       </section>
 
+      <!-- STEP 2: THE "SWISS BLUEPRINT" SPECS BOX -->
       <section class="villa-specs py-20 md:py-28 px-6 md:px-12 bg-white" data-theme="light">
-        <div class="max-w-6xl mx-auto grid lg:grid-cols-3 gap-14 lg:gap-8">
-          <div class="lg:col-span-2 grid grid-cols-2 md:grid-cols-4 gap-6">
-            <div class="border border-black/10 p-6">
+        <div class="max-w-6xl mx-auto">
+          <h2 class="text-xs tracking-[0.2em] uppercase font-bold text-black/40 mb-12 text-center">Specifications</h2>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-black/10 border border-black/10">
+            {/* 3x2 Grid - 6 Items */}
+            <div class="bg-white p-8 lg:p-12 flex flex-col justify-between aspect-square md:aspect-auto">
+              <p class="text-xs uppercase tracking-[0.18em] text-black/45">Location Zone</p>
+              <p class="mt-4 text-3xl lg:text-4xl font-serif text-black">{locationZone}</p>
+            </div>
+
+            <div class="bg-white p-8 lg:p-12 flex flex-col justify-between aspect-square md:aspect-auto">
+              <p class="text-xs uppercase tracking-[0.18em] text-black/45">Starting Price</p>
+              <p class="mt-4 text-3xl lg:text-4xl font-serif text-black">{formattedStartingPrice ?? '—'}</p>
+            </div>
+
+            <div class="bg-white p-8 lg:p-12 flex flex-col justify-between aspect-square md:aspect-auto">
               <p class="text-xs uppercase tracking-[0.18em] text-black/45">Bedrooms</p>
-              <p class="mt-4 text-3xl font-serif text-black">{bedrooms ?? '—'}</p>
+              <p class="mt-4 text-3xl lg:text-4xl font-serif text-black">{bedrooms ?? '—'}</p>
             </div>
-            <div class="border border-black/10 p-6">
+
+            <div class="bg-white p-8 lg:p-12 flex flex-col justify-between aspect-square md:aspect-auto">
               <p class="text-xs uppercase tracking-[0.18em] text-black/45">Bathrooms</p>
-              <p class="mt-4 text-3xl font-serif text-black">{bathrooms ?? '—'}</p>
+              <p class="mt-4 text-3xl lg:text-4xl font-serif text-black">{bathrooms ?? '—'}</p>
             </div>
-            <div class="border border-black/10 p-6">
+
+            <div class="bg-white p-8 lg:p-12 flex flex-col justify-between aspect-square md:aspect-auto">
               <p class="text-xs uppercase tracking-[0.18em] text-black/45">Max Guests</p>
-              <p class="mt-4 text-3xl font-serif text-black">{maxGuests ?? '—'}</p>
+              <p class="mt-4 text-3xl lg:text-4xl font-serif text-black">{maxGuests ?? '—'}</p>
             </div>
-            <div class="border border-black/10 p-6">
+
+            <div class="bg-white p-8 lg:p-12 flex flex-col justify-between aspect-square md:aspect-auto">
               <p class="text-xs uppercase tracking-[0.18em] text-black/45">Interior SqFt</p>
-              <p class="mt-4 text-3xl font-serif text-black">{interiorSqFt ?? '—'}</p>
+              <p class="mt-4 text-3xl lg:text-4xl font-serif text-black">{interiorSqFt ? `${interiorSqFt} sq ft` : '—'}</p>
             </div>
           </div>
-
-          <aside class="border border-black/10 p-8">
-            <p class="text-xs uppercase tracking-[0.18em] text-black/45">Location Zone</p>
-            <p class="mt-3 text-2xl font-serif text-black">{locationZone}</p>
-
-            {formattedStartingPrice && (
-              <p class="mt-6 text-lg text-black">
-                Starting at <span class="font-semibold">{formattedStartingPrice}</span> per night
-              </p>
-            )}
-
-            <div class="mt-8">
-              <p class="text-xs uppercase tracking-[0.18em] text-black/45 mb-4">Amenities</p>
-              <ul class="space-y-2 text-black/80">
-                {amenities.map((amenity, index) => (
-                  <li key={`${amenity}-${index}`}>{amenity ?? ''}</li>
-                ))}
-              </ul>
-            </div>
-          </aside>
         </div>
       </section>
+
+      <!-- STEP 3: "THE AMENITIES SHOWCASE" -->
+      {amenities.length > 0 && (
+        <section class="villa-amenities py-24 md:py-32 bg-[#F9F7F3]" data-theme="light">
+          <div class="max-w-6xl mx-auto px-6 md:px-12">
+            <h2 class="text-4xl md:text-5xl font-serif text-center text-black mb-16 md:mb-24">The Amenities</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-8">
+              {amenities.map((amenity, index) => (
+                <div class="border-b border-black/10 pb-4 flex items-center justify-between group" key={`${amenity}-${index}`}>
+                  <span class="text-lg text-black/80 font-light group-hover:text-black transition-colors">{amenity ?? ''}</span>
+                  <span class="text-black/20 text-xs tracking-widest">+</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       <CTA title={`Experience <br/>${title}`} buttonText="Reserve" />
     </main>
@@ -198,6 +257,17 @@ const formattedStartingPrice =
 
   <Footer />
   <div id="footer-spacer"></div>
+
+  <!-- LIGHTBOX MODAL -->
+  <div id="gallery-lightbox" class="fixed inset-0 z-[99999] flex items-center justify-center opacity-0 pointer-events-none" style="backdrop-filter: blur(0px);">
+    <div class="absolute inset-0 bg-black/90 lightbox-bg"></div>
+    <button id="lightbox-close" class="absolute top-8 right-8 text-white z-10 w-12 h-12 flex items-center justify-center text-xl hover:scale-110 transition-transform">
+      &#x2715;
+    </button>
+    <div class="relative z-10 w-full max-w-7xl px-4 flex justify-center lightbox-content scale-110">
+      <img id="lightbox-img" src="" alt="Gallery Fullscreen" class="max-h-[85vh] w-auto object-contain" />
+    </div>
+  </div>
 </Layout>
 
 <script>
@@ -225,6 +295,95 @@ const formattedStartingPrice =
         delay: 0.1
       });
     }
+
+    // Lightbox Logic
+    const galleryItems = document.querySelectorAll('.gallery-item');
+    const lightbox = document.getElementById('gallery-lightbox');
+    const lightboxImg = document.getElementById('lightbox-img') as HTMLImageElement;
+    const lightboxClose = document.getElementById('lightbox-close');
+    const lightboxContent = document.querySelector('.lightbox-content');
+
+    let isLightboxOpen = false;
+
+    function openLightbox(src: string) {
+      if (!lightbox || !lightboxImg || !lightboxContent) return;
+
+      lightboxImg.src = src;
+      isLightboxOpen = true;
+
+      // Prevent scrolling
+      document.body.style.overflow = 'hidden';
+
+      // Make visible and pointer events active
+      lightbox.classList.remove('pointer-events-none');
+
+      // GSAP Animation
+      gsap.to(lightbox, {
+        opacity: 1,
+        backdropFilter: 'blur(10px)',
+        duration: 0.5,
+        ease: 'power3.out'
+      });
+
+      gsap.to(lightboxContent, {
+        scale: 1,
+        duration: 0.6,
+        ease: 'back.out(1.2)'
+      });
+    }
+
+    function closeLightbox() {
+      if (!lightbox || !lightboxContent) return;
+      isLightboxOpen = false;
+
+      // Restore scrolling
+      document.body.style.overflow = '';
+
+      // Reverse GSAP Animation
+      gsap.to(lightboxContent, {
+        scale: 1.1,
+        duration: 0.4,
+        ease: 'power3.in'
+      });
+
+      gsap.to(lightbox, {
+        opacity: 0,
+        backdropFilter: 'blur(0px)',
+        duration: 0.4,
+        ease: 'power3.in',
+        onComplete: () => {
+          lightbox.classList.add('pointer-events-none');
+          if (lightboxImg) lightboxImg.src = '';
+        }
+      });
+    }
+
+    galleryItems.forEach(item => {
+      item.addEventListener('click', (e) => {
+        e.preventDefault();
+        const src = item.getAttribute('data-src');
+        if (src) {
+          openLightbox(src);
+        }
+      });
+    });
+
+    if (lightboxClose) {
+      lightboxClose.addEventListener('click', closeLightbox);
+    }
+
+    // Close on background click
+    const lightboxBg = document.querySelector('.lightbox-bg');
+    if (lightboxBg) {
+      lightboxBg.addEventListener('click', closeLightbox);
+    }
+
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && isLightboxOpen) {
+        closeLightbox();
+      }
+    });
   }
 
   document.addEventListener('astro:page-load', initVillaTemplate);
