@@ -7,27 +7,48 @@ import Footer from '../../components/Footer.astro';
 import { sanityClient } from 'sanity:client';
 import { urlFor } from '../../utils/sanity';
 
+type SanityGalleryItem = {
+  url?: string | null;
+  alt?: string | null;
+  caption?: string | null;
+  credit?: string | null;
+};
+
 type SanityVilla = {
-  title: string;
+  title?: string | null;
   slug: string;
+  heroTitle?: string | null;
+  heroKicker?: string | null;
+  heroMediaType?: string | null;
   heroBgUrl?: string | null;
+  heroVideoUrl?: string | null;
   heroBackgroundImage?: unknown;
+  overviewEyebrow?: string | null;
+  overviewManifesto?: string | null;
+  overviewShort?: string | null;
+  gallery?: SanityGalleryItem[] | null;
+  bedrooms?: number | null;
+  bathrooms?: number | null;
+  maxGuests?: number | null;
+  interiorSqFt?: number | null;
+  exteriorSqFt?: number | null;
+  amenities?: string[] | null;
+  highlightAmenities?: string[] | null;
   locationZone?: string | null;
-  bedrooms: number | null;
-  bathrooms: number | null;
+  startingPrice?: number | null;
 };
 
 export async function getStaticPaths() {
   const query = `*[_type == "villa"]{
     "slug": slug.current,
-    title, heroTitle, heroMediaType,
+    title, heroTitle, heroKicker, heroMediaType,
     "heroBgUrl": heroBackgroundImage.asset->url,
     "heroVideoUrl": heroBackgroundVideo.asset->url,
-    overviewEyebrow, overviewManifesto,
-    "gallery": galleryItems[]{ "url": image.asset->url, "alt": image.alt, caption },
-    bedrooms, bathrooms, maxGuests, interiorSqFt, amenities,
-    heroBackgroundImage,
-    locationZone
+    overviewEyebrow, overviewManifesto, overviewShort,
+    "gallery": galleryItems[]{ "url": image.asset->url, "alt": image.alt, caption, credit },
+    bedrooms, bathrooms, maxGuests, interiorSqFt, exteriorSqFt,
+    amenities, highlightAmenities, locationZone, startingPrice,
+    heroBackgroundImage
   }`;
 
   const villas = await sanityClient.fetch<SanityVilla[]>(query);
@@ -37,16 +58,36 @@ export async function getStaticPaths() {
     props: {
       villa: {
         ...villa,
-        imageUrl: villa.heroBgUrl ?? (villa.heroBackgroundImage ? urlFor(villa.heroBackgroundImage).url() : null)
+        heroBgUrl: villa.heroBgUrl ?? (villa.heroBackgroundImage ? urlFor(villa.heroBackgroundImage).url() : null)
       }
     }
   }));
 }
 
-const { villa } = Astro.props;
+const { villa } = Astro.props as { villa: SanityVilla };
+
+const title = villa.title ?? 'Villa';
+const heroTitle = villa.heroTitle ?? title;
+const heroBgUrl = villa.heroBgUrl ?? null;
+const heroVideoUrl = villa.heroVideoUrl ?? null;
+
+const overviewEyebrow = villa.overviewEyebrow ?? 'At a Glance';
+const overviewManifesto = villa.overviewManifesto ?? villa.overviewShort ?? 'A private sanctuary crafted for restorative escapes.';
+
+const gallery = villa.gallery ?? [];
+
+const bedrooms = villa.bedrooms ?? null;
+const bathrooms = villa.bathrooms ?? null;
+const maxGuests = villa.maxGuests ?? null;
+const interiorSqFt = villa.interiorSqFt ?? null;
+const amenities = villa.amenities ?? [];
+const locationZone = villa.locationZone ?? 'Papagayo';
+const startingPrice = villa.startingPrice ?? null;
+const formattedStartingPrice =
+  startingPrice !== null ? `$${new Intl.NumberFormat('en-US').format(startingPrice)}` : null;
 ---
 
-<Layout title={`${villa.title} | Experience Papagayo`}>
+<Layout title={`${title} | Experience Papagayo`}>
   <Header />
   <FullscreenMenu />
 
@@ -54,34 +95,104 @@ const { villa } = Astro.props;
     <main>
       <section class="villa-hero relative h-screen w-full overflow-hidden flex items-center justify-center" data-theme="dark">
         <div class="absolute inset-0 w-full h-full">
-          {villa.imageUrl && (
-            <img
-              src={villa.imageUrl}
-              alt={villa.title}
-              class="w-full h-full object-cover scale-[1.05]"
-              loading="eager"
-            />
+          {heroVideoUrl ? (
+            <video class="w-full h-full object-cover" src={heroVideoUrl} autoplay muted loop playsinline></video>
+          ) : (
+            heroBgUrl && (
+              <img
+                src={heroBgUrl}
+                alt={title}
+                class="w-full h-full object-cover scale-[1.05]"
+                loading="eager"
+              />
+            )
           )}
-          <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-black/20 to-black/60"></div>
+          <div class="absolute inset-0 bg-black/25"></div>
         </div>
 
-        <div class="relative z-10 text-center px-4">
+        <div class="relative z-10 text-center px-4 max-w-5xl">
           <h1 class="villa-title text-6xl md:text-[8vw] font-serif text-[#F5F5F0] tracking-tight leading-none opacity-0 translate-y-10">
-            {villa.title}
+            {heroTitle}
           </h1>
         </div>
       </section>
 
       <section class="villa-overview py-32 md:py-48 px-6 md:px-12 bg-white flex items-center justify-center min-h-[50vh]" data-theme="light">
         <div class="max-w-4xl mx-auto text-center">
-          <h2 class="text-sm tracking-[0.2em] uppercase font-bold text-black/40 mb-12">At a Glance</h2>
-          <p class="villa-manifesto-text text-3xl md:text-5xl lg:text-6xl font-serif leading-tight md:leading-snug text-[#1A1A1A]">
-            {villa.locationZone ?? 'Papagayo'} · {(villa.bedrooms ?? '—')} Bedrooms · {(villa.bathrooms ?? '—')} Bathrooms
+          <h2 class="text-xs tracking-[0.2em] uppercase font-bold text-black/40 mb-10">{overviewEyebrow}</h2>
+          <p class="villa-manifesto-text text-3xl md:text-5xl lg:text-6xl font-serif leading-tight md:leading-snug text-[#1A1A1A] opacity-0 translate-y-8">
+            {overviewManifesto}
           </p>
         </div>
       </section>
 
-      <CTA title={`Experience <br/>${villa.title}`} buttonText="Reserve" />
+      <section class="villa-gallery py-16 md:py-24 bg-[#F8F7F3]" data-theme="light">
+        <div class="px-6 md:px-12">
+          <div class="flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory">
+            {gallery.map((item, index) => (
+              <figure class="min-w-[78vw] md:min-w-[48vw] lg:min-w-[36vw] snap-start" key={`${item.url ?? 'image'}-${index}`}>
+                <img
+                  src={item.url ?? ''}
+                  alt={item.alt ?? `${title} gallery image ${index + 1}`}
+                  class="h-[28rem] w-full object-cover rounded-sm"
+                  loading="lazy"
+                />
+                {(item.caption ?? item.credit) && (
+                  <figcaption class="mt-3 text-sm text-black/60 flex items-center justify-between gap-4">
+                    <span>{item.caption ?? ''}</span>
+                    <span>{item.credit ?? ''}</span>
+                  </figcaption>
+                )}
+              </figure>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section class="villa-specs py-20 md:py-28 px-6 md:px-12 bg-white" data-theme="light">
+        <div class="max-w-6xl mx-auto grid lg:grid-cols-3 gap-14 lg:gap-8">
+          <div class="lg:col-span-2 grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div class="border border-black/10 p-6">
+              <p class="text-xs uppercase tracking-[0.18em] text-black/45">Bedrooms</p>
+              <p class="mt-4 text-3xl font-serif text-black">{bedrooms ?? '—'}</p>
+            </div>
+            <div class="border border-black/10 p-6">
+              <p class="text-xs uppercase tracking-[0.18em] text-black/45">Bathrooms</p>
+              <p class="mt-4 text-3xl font-serif text-black">{bathrooms ?? '—'}</p>
+            </div>
+            <div class="border border-black/10 p-6">
+              <p class="text-xs uppercase tracking-[0.18em] text-black/45">Max Guests</p>
+              <p class="mt-4 text-3xl font-serif text-black">{maxGuests ?? '—'}</p>
+            </div>
+            <div class="border border-black/10 p-6">
+              <p class="text-xs uppercase tracking-[0.18em] text-black/45">Interior SqFt</p>
+              <p class="mt-4 text-3xl font-serif text-black">{interiorSqFt ?? '—'}</p>
+            </div>
+          </div>
+
+          <aside class="border border-black/10 p-8">
+            <p class="text-xs uppercase tracking-[0.18em] text-black/45">Location Zone</p>
+            <p class="mt-3 text-2xl font-serif text-black">{locationZone}</p>
+
+            {formattedStartingPrice && (
+              <p class="mt-6 text-lg text-black">
+                Starting at <span class="font-semibold">{formattedStartingPrice}</span> per night
+              </p>
+            )}
+
+            <div class="mt-8">
+              <p class="text-xs uppercase tracking-[0.18em] text-black/45 mb-4">Amenities</p>
+              <ul class="space-y-2 text-black/80">
+                {amenities.map((amenity, index) => (
+                  <li key={`${amenity}-${index}`}>{amenity ?? ''}</li>
+                ))}
+              </ul>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <CTA title={`Experience <br/>${title}`} buttonText="Reserve" />
     </main>
   </div>
 
@@ -101,6 +212,17 @@ const { villa } = Astro.props;
         duration: 1.5,
         ease: 'power3.out',
         delay: 0.2
+      });
+    }
+
+    const manifesto = document.querySelector('.villa-manifesto-text');
+    if (manifesto) {
+      gsap.to(manifesto, {
+        opacity: 1,
+        y: 0,
+        duration: 1.2,
+        ease: 'power3.out',
+        delay: 0.1
       });
     }
   }
