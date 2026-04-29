@@ -25,10 +25,15 @@ const query = `*[_type == "villa"] | order(_createdAt desc) {
   bathrooms
 }`;
 
-const villas = (await sanityClient.fetch<SanityVilla[]>(query)).map((villa) => ({
-  ...villa,
-  imageUrl: villa.heroBackgroundImage ? urlFor(villa.heroBackgroundImage).url() : null
-}));
+let villas: any[] = [];
+try {
+  villas = (await sanityClient.fetch<SanityVilla[]>(query)).map((villa) => ({
+    ...villa,
+    imageUrl: villa.heroBackgroundImage ? urlFor(villa.heroBackgroundImage).url() : null
+  }));
+} catch (e) {
+  console.warn("Error fetching villas:", e);
+}
 
 const formatBathrooms = (value: number | null) => {
   if (value === null || Number.isNaN(value)) return '—';

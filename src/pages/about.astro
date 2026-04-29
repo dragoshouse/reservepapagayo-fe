@@ -17,7 +17,7 @@ try {
   const query = `*[_type == "about"][0]{ ..., "heroVideoUrl": heroBackgroundVideo.asset->url }`;
   aboutData = await sanityClient.fetch(query);
 } catch (error) {
-  console.error("Failed to fetch Sanity data for about.astro:", error);
+  console.warn("Failed to fetch Sanity data for about.astro");
 }
 
 const seoTitle = aboutData?.seoTitle ?? "About Us | Experience Papagayo";
