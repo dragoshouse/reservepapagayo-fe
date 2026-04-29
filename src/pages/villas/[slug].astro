@@ -158,15 +158,23 @@ const formattedStartingPrice =
       <section class="villa-gallery py-16 md:py-24 bg-[#F8F7F3] overflow-hidden" data-theme="light">
         <div class="px-6 md:px-12 mb-12 flex justify-between items-end">
           <h2 class="text-xs tracking-[0.2em] uppercase font-bold text-black/40">Gallery</h2>
+          <div class="flex items-center gap-4">
+            <button id="gallery-prev" class="w-10 h-10 flex items-center justify-center border border-black/10 rounded-full hover:bg-black hover:text-white transition-colors" aria-label="Previous image">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            </button>
+            <button id="gallery-next" class="w-10 h-10 flex items-center justify-center border border-black/10 rounded-full hover:bg-black hover:text-white transition-colors" aria-label="Next image">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+            </button>
+          </div>
         </div>
         <div class="px-6 md:px-12">
-          <div class="flex gap-6 overflow-x-auto pb-8 snap-x snap-mandatory scrollbar-hide gallery-container">
+          <div class="flex gap-6 overflow-x-auto pb-8 snap-x snap-mandatory no-scrollbar gallery-container">
             {gallery.map((item, index) => {
               const displayIndex = (index + 1).toString().padStart(2, '0');
               const totalIndex = galleryCount.toString().padStart(2, '0');
 
               return (
-                <figure class="min-w-[85vw] md:min-w-[60vw] lg:min-w-[45vw] snap-start relative group cursor-pointer gallery-item" key={`${item.url ?? 'image'}-${index}`} data-src={item.url ?? ''}>
+                <figure class="min-w-[85vw] md:min-w-[60vw] lg:min-w-[45vw] snap-start relative group cursor-pointer gallery-image-trigger" key={`${item.url ?? 'image'}-${index}`} data-src={item.url ?? ''}>
                   <div class="overflow-hidden relative h-[40rem] w-full rounded-sm">
                     <img
                       src={item.url ?? ''}
@@ -261,9 +269,24 @@ const formattedStartingPrice =
   <!-- LIGHTBOX MODAL -->
   <div id="gallery-lightbox" class="fixed inset-0 z-[99999] flex items-center justify-center opacity-0 pointer-events-none" style="backdrop-filter: blur(0px);">
     <div class="absolute inset-0 bg-black/90 lightbox-bg"></div>
-    <button id="lightbox-close" class="absolute top-8 right-8 text-white z-10 w-12 h-12 flex items-center justify-center text-xl hover:scale-110 transition-transform">
+
+    <!-- Controls -->
+    <button id="lightbox-close" class="absolute top-8 right-8 text-white z-[100] w-12 h-12 flex items-center justify-center text-xl hover:scale-110 transition-transform" aria-label="Close lightbox">
       &#x2715;
     </button>
+
+    <button id="lightbox-prev" class="absolute top-1/2 -translate-y-1/2 left-8 text-white z-[100] w-12 h-12 flex items-center justify-center hover:scale-110 transition-transform cursor-pointer" aria-label="Previous image">
+      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+    </button>
+
+    <button id="lightbox-next" class="absolute top-1/2 -translate-y-1/2 right-8 text-white z-[100] w-12 h-12 flex items-center justify-center hover:scale-110 transition-transform cursor-pointer" aria-label="Next image">
+      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+    </button>
+
+    <div id="lightbox-counter" class="absolute bottom-8 left-1/2 -translate-x-1/2 text-white/80 text-sm tracking-widest font-serif z-[100]">
+      1 / 1
+    </div>
+
     <div class="relative z-10 w-full max-w-7xl px-4 flex justify-center lightbox-content scale-110">
       <img id="lightbox-img" src="" alt="Gallery Fullscreen" class="max-h-[85vh] w-auto object-contain" />
     </div>
@@ -296,19 +319,48 @@ const formattedStartingPrice =
       });
     }
 
+    // Inline Gallery Logic
+    const galleryContainer = document.querySelector('.gallery-container');
+    const galleryPrev = document.getElementById('gallery-prev');
+    const galleryNext = document.getElementById('gallery-next');
+
+    if (galleryContainer && galleryPrev && galleryNext) {
+      galleryPrev.addEventListener('click', () => {
+        galleryContainer.scrollBy({ left: -(window.innerWidth * 0.5), behavior: 'smooth' });
+      });
+      galleryNext.addEventListener('click', () => {
+        galleryContainer.scrollBy({ left: window.innerWidth * 0.5, behavior: 'smooth' });
+      });
+    }
+
     // Lightbox Logic
-    const galleryItems = document.querySelectorAll('.gallery-item');
+    const galleryImages = Array.from(document.querySelectorAll('.gallery-image-trigger'));
     const lightbox = document.getElementById('gallery-lightbox');
     const lightboxImg = document.getElementById('lightbox-img') as HTMLImageElement;
     const lightboxClose = document.getElementById('lightbox-close');
+    const lightboxPrev = document.getElementById('lightbox-prev');
+    const lightboxNext = document.getElementById('lightbox-next');
+    const lightboxCounter = document.getElementById('lightbox-counter');
     const lightboxContent = document.querySelector('.lightbox-content');
 
     let isLightboxOpen = false;
+    let currentIndex = 0;
 
-    function openLightbox(src: string) {
+    function updateCounter() {
+      if (lightboxCounter) {
+        lightboxCounter.textContent = `${currentIndex + 1} / ${galleryImages.length}`;
+      }
+    }
+
+    function openLightbox(index: number) {
       if (!lightbox || !lightboxImg || !lightboxContent) return;
 
+      currentIndex = index;
+      const src = galleryImages[currentIndex].getAttribute('data-src');
+      if (!src) return;
+
       lightboxImg.src = src;
+      updateCounter();
       isLightboxOpen = true;
 
       // Prevent scrolling
@@ -329,6 +381,29 @@ const formattedStartingPrice =
         scale: 1,
         duration: 0.6,
         ease: 'back.out(1.2)'
+      });
+    }
+
+    function changeSlide(direction: number) {
+      if (!lightboxImg || !isLightboxOpen) return;
+
+      // Modulo math to loop around safely
+      currentIndex = (currentIndex + direction + galleryImages.length) % galleryImages.length;
+      const newSrc = galleryImages[currentIndex].getAttribute('data-src');
+      if (!newSrc) return;
+
+      // Crossfade using GSAP
+      gsap.to(lightboxImg, {
+        opacity: 0,
+        duration: 0.2,
+        onComplete: () => {
+          lightboxImg.src = newSrc;
+          updateCounter();
+          gsap.to(lightboxImg, {
+            opacity: 1,
+            duration: 0.2
+          });
+        }
       });
     }
 
@@ -358,19 +433,16 @@ const formattedStartingPrice =
       });
     }
 
-    galleryItems.forEach(item => {
+    galleryImages.forEach((item, index) => {
       item.addEventListener('click', (e) => {
         e.preventDefault();
-        const src = item.getAttribute('data-src');
-        if (src) {
-          openLightbox(src);
-        }
+        openLightbox(index);
       });
     });
 
-    if (lightboxClose) {
-      lightboxClose.addEventListener('click', closeLightbox);
-    }
+    if (lightboxClose) lightboxClose.addEventListener('click', closeLightbox);
+    if (lightboxPrev) lightboxPrev.addEventListener('click', () => changeSlide(-1));
+    if (lightboxNext) lightboxNext.addEventListener('click', () => changeSlide(1));
 
     // Close on background click
     const lightboxBg = document.querySelector('.lightbox-bg');
@@ -378,11 +450,13 @@ const formattedStartingPrice =
       lightboxBg.addEventListener('click', closeLightbox);
     }
 
-    // Close on Escape key
+    // Keyboard navigation
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && isLightboxOpen) {
-        closeLightbox();
-      }
+      if (!isLightboxOpen) return;
+
+      if (e.key === 'Escape') closeLightbox();
+      if (e.key === 'ArrowLeft') changeSlide(-1);
+      if (e.key === 'ArrowRight') changeSlide(1);
     });
   }
 
@@ -393,3 +467,8 @@ const formattedStartingPrice =
     document.addEventListener('DOMContentLoaded', initVillaTemplate);
   }
 </script>
+
+<style is:global>
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+</style>
