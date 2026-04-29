@@ -10,20 +10,24 @@ import { urlFor } from '../../utils/sanity';
 type SanityVilla = {
   title: string;
   slug: string;
-  heroBackgroundImage: unknown;
-  locationZone: string | null;
+  heroBgUrl?: string | null;
+  heroBackgroundImage?: unknown;
+  locationZone?: string | null;
   bedrooms: number | null;
   bathrooms: number | null;
 };
 
 export async function getStaticPaths() {
-  const query = `*[_type == "villa" && status == "published"] | order(_createdAt desc) {
-    title,
+  const query = `*[_type == "villa"]{
     "slug": slug.current,
+    title, heroTitle, heroMediaType,
+    "heroBgUrl": heroBackgroundImage.asset->url,
+    "heroVideoUrl": heroBackgroundVideo.asset->url,
+    overviewEyebrow, overviewManifesto,
+    "gallery": galleryItems[]{ "url": image.asset->url, "alt": image.alt, caption },
+    bedrooms, bathrooms, maxGuests, interiorSqFt, amenities,
     heroBackgroundImage,
-    locationZone,
-    bedrooms,
-    bathrooms
+    locationZone
   }`;
 
   const villas = await sanityClient.fetch<SanityVilla[]>(query);
@@ -33,7 +37,7 @@ export async function getStaticPaths() {
     props: {
       villa: {
         ...villa,
-        imageUrl: villa.heroBackgroundImage ? urlFor(villa.heroBackgroundImage).url() : null
+        imageUrl: villa.heroBgUrl ?? (villa.heroBackgroundImage ? urlFor(villa.heroBackgroundImage).url() : null)
       }
     }
   }));
