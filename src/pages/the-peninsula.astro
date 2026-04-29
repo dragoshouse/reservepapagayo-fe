@@ -1,9 +1,11 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { Image } from 'astro:assets';
 import Header from '../components/Header.astro';
 import FullscreenMenu from '../components/FullscreenMenu.astro';
 import CTA from '../components/CTA.astro';
 import Footer from '../components/Footer.astro';
+import heroImage from '../assets/pap4336RGB.jpg';
 ---
 
 <Layout title="The Peninsula">
@@ -15,8 +17,8 @@ import Footer from '../components/Footer.astro';
       <!-- 1. Hero Section -->
       <section class="relative h-screen w-full" data-theme="dark">
         <!-- Background Image -->
-        <img
-          src="https://peninsulapapagayo.com/wp-content/uploads/2019/12/COS_2747-2160x0-c-default.jpg"
+        <Image
+          src={heroImage}
           alt="The Peninsula Papagayo"
           class="absolute inset-0 w-full h-full object-cover"
         />
