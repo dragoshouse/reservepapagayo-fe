@@ -2,9 +2,14 @@
 import { Image } from 'astro:assets';
 import logoMain from '../assets/logo-main.png';
 import logoArena from '../assets/logo-arena.png';
+
+const forceWhiteHeader = Astro.url.pathname === '/contact' || Astro.url.pathname.startsWith('/villas');
 ---
 
-<header id="site-header" class="fixed top-0 left-0 w-full z-50 flex items-center justify-between px-6 py-6 md:px-12 bg-white/95 border-b border-black/10 backdrop-blur-sm transition-colors duration-300">
+<header id="site-header" class:list={[
+  'fixed top-0 left-0 w-full z-50 flex items-center justify-between px-6 py-6 md:px-12 backdrop-blur-sm transition-colors duration-300',
+  forceWhiteHeader ? 'bg-white/95 border-b border-black/10' : 'bg-transparent border-b border-transparent'
+]}>
   <div class="flex items-center h-16 md:h-24">
     <a href="/" class="relative block h-full w-auto hover:opacity-80 transition-opacity">
       <div id="logo-wrapper" class="relative block h-full w-auto origin-left transition-transform duration-300">
@@ -35,6 +40,7 @@ import logoArena from '../assets/logo-arena.png';
   const logoMain = document.getElementById("logo-main-container");
   const logoArena = document.getElementById("logo-arena-container");
   const menuLines = document.querySelectorAll(".menu-line");
+  const forceWhiteHeader = window.location.pathname === '/contact' || window.location.pathname.startsWith('/villas');
 
   if (header && logoWrapper && logoMain && logoArena) {
     // Only track themed sections inside <main> to avoid fixed overlays (e.g. footer)
@@ -82,12 +88,29 @@ import logoArena from '../assets/logo-arena.png';
     }
 
     function applyTheme(theme: string) {
-      if (theme === 'dark' || theme === 'light') {
+      if (forceWhiteHeader) {
+        gsap.to(header, { backgroundColor: "#ffffff", borderBottomColor: "rgba(0,0,0,0.1)", duration: 0.3, ease: "power2.out" });
+        gsap.to(logoMain, { opacity: 0, duration: 0.3 });
+        gsap.to(logoArena, { opacity: 1, duration: 0.3 });
+        gsap.to(menuLines, { backgroundColor: "#C9A16A", duration: 0.3 });
+        return;
+      }
+
+      if (theme === 'light') {
         gsap.to(header, { backgroundColor: "#ffffff", borderBottomColor: "rgba(0,0,0,0.1)", duration: 0.3, ease: "power2.out" });
         gsap.to(logoMain, { opacity: 0, duration: 0.3 });
         gsap.to(logoArena, { opacity: 1, duration: 0.3 });
         gsap.to(menuLines, { backgroundColor: "#C9A16A", duration: 0.3 });
       }
+
+      if (theme === 'dark') {
+        gsap.to(header, { backgroundColor: "transparent", borderBottomColor: "rgba(0,0,0,0)", duration: 0.3, ease: "power2.out" });
+        gsap.to(logoMain, { opacity: 1, duration: 0.3 });
+        gsap.to(logoArena, { opacity: 0, duration: 0.3 });
+        gsap.to(menuLines, { backgroundColor: "#ffffff", duration: 0.3 });
+      }
     }
+
+    applyTheme(forceWhiteHeader ? 'light' : 'dark');
   }
 </script>
