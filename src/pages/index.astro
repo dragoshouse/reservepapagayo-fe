@@ -61,11 +61,23 @@ const ctaButtonText = homeData?.ctaButtonText ?? "Inquire Now";
       <Journal sectionLabel={journalLabel} readAllLabel={journalReadAll} />
 
       <!-- Block C: Sensorial & Final CTA -->
-      <section class="text-center bg-[#F9F7F3] py-40 px-4" data-theme="light">
-        <p class="text-xl mb-2 text-black/80 font-light">Designed for slower mornings, open afternoons, and long evenings.</p>
-        <p class="text-xl italic font-serif mb-12 text-black/80">A stay that feels lived, not staged.</p>
-        <h2 class="text-4xl md:text-6xl font-serif mb-12 text-black">Find your place in Papagayo</h2>
-        <a href="/contact" class="inline-block border-b border-black pb-1 text-black uppercase tracking-widest text-sm hover:opacity-60 transition-opacity">→ View availability</a>
+      <section class="relative bg-black text-white py-40 px-4 flex flex-col items-center justify-center text-center overflow-hidden" data-theme="dark">
+        <p class="text-xl md:text-2xl font-light text-white/70 mb-4">
+          Designed for slower mornings, open afternoons, and long evenings.
+        </p>
+        <p class="text-xl md:text-2xl italic font-serif text-white/50 mb-16">
+          A stay that feels lived, not staged.
+        </p>
+        <h2 class="text-5xl md:text-7xl font-serif text-white mb-20">
+          Find your place in Papagayo
+        </h2>
+
+        <!-- Magnetic Circular Button -->
+        <a href="/contact" class="magnetic-cta relative flex items-center justify-center w-40 h-40 md:w-48 md:h-48 rounded-full border border-white/30 text-white hover:bg-white hover:text-black transition-colors duration-500 group">
+          <span class="magnetic-text text-sm tracking-widest uppercase font-medium pointer-events-none">
+            View Availability
+          </span>
+        </a>
       </section>
 
     </main>
@@ -75,3 +87,36 @@ const ctaButtonText = homeData?.ctaButtonText ?? "Inquire Now";
   <!-- Spacer for the fixed footer to reveal naturally -->
   <div id="footer-spacer"></div>
 </Layout>
+
+<script>
+  import { gsap } from "gsap";
+
+  function initMagneticButtons() {
+    const buttons = document.querySelectorAll('.magnetic-cta');
+
+    buttons.forEach((btn) => {
+      const text = btn.querySelector('.magnetic-text');
+
+      btn.addEventListener('mousemove', (e) => {
+        // e is MouseEvent
+        const rect = btn.getBoundingClientRect();
+        const h = rect.width / 2;
+
+        // Use type assertion or casting if necessary, but in JS it's fine
+        const x = (e as MouseEvent).clientX - rect.left - h;
+        const y = (e as MouseEvent).clientY - rect.top - h;
+
+        gsap.to(btn, { x: x * 0.4, y: y * 0.4, duration: 0.5, ease: "power3.out" });
+        if (text) gsap.to(text, { x: x * 0.2, y: y * 0.2, duration: 0.5, ease: "power3.out" });
+      });
+
+      btn.addEventListener('mouseleave', () => {
+        gsap.to(btn, { x: 0, y: 0, duration: 0.7, ease: "elastic.out(1, 0.3)" });
+        if (text) gsap.to(text, { x: 0, y: 0, duration: 0.7, ease: "elastic.out(1, 0.3)" });
+      });
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', initMagneticButtons);
+  document.addEventListener('astro:page-load', initMagneticButtons);
+</script>
