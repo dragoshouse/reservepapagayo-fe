@@ -39,14 +39,16 @@ const ctaButtonText = homeData?.ctaButtonText ?? "Inquire Now";
         videoUrl={heroVideoUrl}
       />
 
-      <!-- Block A: Mental Shift -->
-      <section class="text-center max-w-4xl mx-auto px-4 py-32" data-theme="light">
-        <h2 class="text-3xl md:text-5xl font-serif mb-6 text-black">Not all stays are the same.</h2>
-        <p class="text-lg text-black/70 font-light">Each villa offers a distinct way of experiencing Papagayo—through architecture, setting, and rhythm.</p>
-      </section>
+      <!-- Unified Block A & Villa Collection -->
+      <section class="bg-black text-white py-32 px-4" data-theme="dark">
+        <div class="max-w-4xl mx-auto text-center mb-24">
+          <h2 class="text-3xl md:text-5xl font-serif mb-6 text-white">Not all stays are the same.</h2>
+          <p class="text-lg text-white/70 font-light">Each villa offers a distinct way of experiencing Papagayo—through architecture, setting, and rhythm.</p>
+        </div>
 
-      <section data-theme="dark">
-        <VillaCollection sectionTitle={villaSectionTitle} />
+        <div class="max-w-7xl mx-auto">
+          <VillaCollection sectionTitle={villaSectionTitle} />
+        </div>
       </section>
 
       <!-- Block B: Experience Intro -->
