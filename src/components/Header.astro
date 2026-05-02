@@ -3,7 +3,7 @@ import { Image } from 'astro:assets';
 import logoMain from '../assets/logo-main.png';
 import logoArena from '../assets/logo-arena.png';
 
-const forceWhiteHeader = Astro.url.pathname === '/contact' || Astro.url.pathname.startsWith('/villas');
+const forceWhiteHeader = Astro.url.pathname === '/contact' || /^\/villas\/?$/.test(Astro.url.pathname);
 ---
 
 <header id="site-header" class:list={[
@@ -40,7 +40,7 @@ const forceWhiteHeader = Astro.url.pathname === '/contact' || Astro.url.pathname
   const logoMain = document.getElementById("logo-main-container");
   const logoArena = document.getElementById("logo-arena-container");
   const menuLines = document.querySelectorAll(".menu-line");
-  const forceWhiteHeader = window.location.pathname === '/contact' || window.location.pathname.startsWith('/villas');
+  const forceWhiteHeader = window.location.pathname === '/contact' || /^\/villas\/?$/.test(window.location.pathname);
 
   if (header && logoWrapper && logoMain && logoArena) {
     // Only track themed sections inside <main> to avoid fixed overlays (e.g. footer)
