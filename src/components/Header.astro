@@ -7,16 +7,22 @@ const forceWhiteHeader = Astro.url.pathname === '/contact' || /^\/villas\/?$/.te
 ---
 
 <header id="site-header" class:list={[
-  'fixed top-0 left-0 w-full z-50 flex items-center justify-between px-6 py-6 md:px-12 backdrop-blur-sm transition-colors duration-300',
+  'absolute top-0 left-0 w-full z-50 flex items-center justify-between px-6 py-6 md:px-12 backdrop-blur-sm transition-colors duration-300',
   forceWhiteHeader ? 'bg-white/95 border-b border-black/10' : 'bg-transparent border-b border-transparent'
 ]}>
   <div class="flex items-center h-16 md:h-24">
     <a href="/" class="relative block h-full w-auto hover:opacity-80 transition-opacity">
       <div id="logo-wrapper" class="relative block h-full w-auto origin-left transition-transform duration-300">
-        <div id="logo-main-container" class="h-full opacity-0 transition-opacity duration-300">
+        <div id="logo-main-container" class:list={[
+          'h-full transition-opacity duration-300',
+          forceWhiteHeader ? 'opacity-0' : 'opacity-100'
+        ]}>
           <Image src={logoMain} alt="Experience Papagayo" class="h-full w-auto object-contain" />
         </div>
-        <div id="logo-arena-container" class="absolute left-0 top-0 h-full w-full opacity-100 pointer-events-none transition-opacity duration-300">
+        <div id="logo-arena-container" class:list={[
+          'absolute left-0 top-0 h-full w-full pointer-events-none transition-opacity duration-300',
+          forceWhiteHeader ? 'opacity-100' : 'opacity-0'
+        ]}>
           <Image src={logoArena} alt="Experience Papagayo" class="h-full w-auto object-contain" />
         </div>
       </div>
@@ -24,93 +30,13 @@ const forceWhiteHeader = Astro.url.pathname === '/contact' || /^\/villas\/?$/.te
   </div>
 
   <button id="menu-toggle" aria-label="Menu" class="flex flex-col items-center justify-center w-10 h-10 space-y-1.5 focus:outline-none group">
-    <span class="menu-line block w-6 h-[1px] bg-[#C9A16A] origin-center transition-colors"></span>
-    <span class="menu-line block w-6 h-[1px] bg-[#C9A16A] origin-center transition-colors"></span>
+    <span class:list={[
+      'menu-line block w-6 h-[1px] origin-center transition-colors',
+      forceWhiteHeader ? 'bg-[#C9A16A]' : 'bg-white'
+    ]}></span>
+    <span class:list={[
+      'menu-line block w-6 h-[1px] origin-center transition-colors',
+      forceWhiteHeader ? 'bg-[#C9A16A]' : 'bg-white'
+    ]}></span>
   </button>
 </header>
-
-<script>
-  import { gsap } from "gsap";
-  import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-  gsap.registerPlugin(ScrollTrigger);
-
-  const header = document.getElementById("site-header");
-  const logoWrapper = document.getElementById("logo-wrapper");
-  const logoMain = document.getElementById("logo-main-container");
-  const logoArena = document.getElementById("logo-arena-container");
-  const menuLines = document.querySelectorAll(".menu-line");
-  const forceWhiteHeader = window.location.pathname === '/contact' || /^\/villas\/?$/.test(window.location.pathname);
-
-  if (header && logoWrapper && logoMain && logoArena) {
-    // Only track themed sections inside <main> to avoid fixed overlays (e.g. footer)
-    // forcing an incorrect initial theme on first paint.
-    const sections = gsap.utils.toArray('.main-content-wrap[data-theme], main [data-theme]');
-    const footerSpacer = document.getElementById('footer-spacer');
-
-    // Scale and padding effect happens once on scroll down
-    ScrollTrigger.create({
-      start: "top -50",
-      end: 99999,
-      toggleClass: {className: "is-sticky", targets: header},
-      onEnter: () => {
-        gsap.to(header, { paddingTop: "1rem", paddingBottom: "1rem", duration: 0.3, ease: "power2.out" });
-        gsap.to(logoWrapper, { scale: 0.75, duration: 0.3, ease: "power2.out" });
-      },
-      onLeaveBack: () => {
-        gsap.to(header, { paddingTop: "1.5rem", paddingBottom: "1.5rem", duration: 0.3, ease: "power2.out" });
-        gsap.to(logoWrapper, { scale: 1, duration: 0.3, ease: "power2.out" });
-      }
-    });
-
-    sections.forEach((sec: any) => {
-      const theme = sec.getAttribute('data-theme');
-
-      ScrollTrigger.create({
-        trigger: sec,
-        start: "top 80px", // Offset for header height
-        end: "bottom 80px",
-        onEnter: () => applyTheme(theme),
-        onEnterBack: () => applyTheme(theme)
-      });
-    });
-
-    // Footer is fixed; use the spacer as a reliable in-flow trigger for light theme.
-    if (footerSpacer) {
-      ScrollTrigger.create({
-        trigger: footerSpacer,
-        start: "top bottom",
-        end: "bottom bottom",
-        onEnter: () => applyTheme('light'),
-        onEnterBack: () => applyTheme('light'),
-        onLeaveBack: () => applyTheme('dark')
-      });
-    }
-
-    function applyTheme(theme: string) {
-      if (forceWhiteHeader) {
-        gsap.to(header, { backgroundColor: "#ffffff", borderBottomColor: "rgba(0,0,0,0.1)", duration: 0.3, ease: "power2.out" });
-        gsap.to(logoMain, { opacity: 0, duration: 0.3 });
-        gsap.to(logoArena, { opacity: 1, duration: 0.3 });
-        gsap.to(menuLines, { backgroundColor: "#C9A16A", duration: 0.3 });
-        return;
-      }
-
-      if (theme === 'light') {
-        gsap.to(header, { backgroundColor: "#ffffff", borderBottomColor: "rgba(0,0,0,0.1)", duration: 0.3, ease: "power2.out" });
-        gsap.to(logoMain, { opacity: 0, duration: 0.3 });
-        gsap.to(logoArena, { opacity: 1, duration: 0.3 });
-        gsap.to(menuLines, { backgroundColor: "#C9A16A", duration: 0.3 });
-      }
-
-      if (theme === 'dark') {
-        gsap.to(header, { backgroundColor: "transparent", borderBottomColor: "rgba(0,0,0,0)", duration: 0.3, ease: "power2.out" });
-        gsap.to(logoMain, { opacity: 1, duration: 0.3 });
-        gsap.to(logoArena, { opacity: 0, duration: 0.3 });
-        gsap.to(menuLines, { backgroundColor: "#ffffff", duration: 0.3 });
-      }
-    }
-
-    applyTheme(forceWhiteHeader ? 'light' : 'dark');
-  }
-</script>
