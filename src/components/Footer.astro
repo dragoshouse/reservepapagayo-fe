@@ -61,10 +61,16 @@ const footerTagline = siteSettings?.footerTagline ?? 'Destination living, redefi
 const contactEmail = siteSettings?.contactEmail ?? 'stay@experiencepapagayo.com';
 const contactPhone = siteSettings?.contactPhone ?? '';
 
+const getSafeLink = (link) => {
+  if (!link) return '/';
+  if (link.startsWith('http') || link.startsWith('mailto:') || link.startsWith('tel:')) return link;
+  return link.startsWith('/') ? link : `/${link}`;
+};
+
 const mainMenuLinks = (siteSettings?.mainMenu ?? [])
   .map((item) => ({
     label: item?.label ?? '',
-    href: item?.link ?? '',
+    href: getSafeLink(item?.link),
   }))
   .filter((item) => item?.label && item?.href);
 
@@ -78,7 +84,7 @@ const villaLinks = (villaDocuments ?? [])
 const socialLinks = (siteSettings?.socialLinks ?? [])
   .map((link) => ({
     label: link?.label ?? '',
-    href: link?.link ?? '',
+    href: getSafeLink(link?.link),
   }))
   .filter((link) => link?.label && link?.href);
 

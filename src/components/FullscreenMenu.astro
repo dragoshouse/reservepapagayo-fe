@@ -32,10 +32,16 @@ const optimizeSanityImageUrl = (imageUrl) => {
   return `${imageUrl}${separator}w=2200&auto=format&q=85`;
 };
 
+const getSafeLink = (link) => {
+  if (!link) return '/';
+  if (link.startsWith('http') || link.startsWith('mailto:') || link.startsWith('tel:')) return link;
+  return link.startsWith('/') ? link : `/${link}`;
+};
+
 const sanitizedMainMenu = (siteSettings?.mainMenu ?? [])
   .map((item) => ({
     label: item?.label ?? '',
-    href: item?.link ?? '',
+    href: getSafeLink(item?.link),
     imageUrl: optimizeSanityImageUrl(item?.imageUrl),
   }))
   .filter((item) => item?.label && item?.href);
