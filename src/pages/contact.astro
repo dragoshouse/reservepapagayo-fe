@@ -3,6 +3,15 @@ import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import FullscreenMenu from '../components/FullscreenMenu.astro';
 import Footer from '../components/Footer.astro';
+import { sanityClient } from 'sanity:client';
+
+let villas = [];
+try {
+  const villasQuery = '*[_type == "villa" && status == "published"]{ title } | order(title asc)';
+  villas = await sanityClient.fetch(villasQuery);
+} catch (error) {
+  console.error("Failed to fetch villas for contact form dropdown:", error);
+}
 ---
 
 <Layout title="Contact | Experience Papagayo">
@@ -19,7 +28,7 @@ import Footer from '../components/Footer.astro';
         </h1>
 
         <!-- Form Container -->
-        <form class="max-w-2xl mx-auto space-y-9 sm:space-y-12">
+        <form id="whatsapp-contact-form" class="max-w-2xl mx-auto space-y-9 sm:space-y-12">
           <!-- Name -->
           <div class="relative gsap-reveal">
             <input type="text" id="name" name="name" class="peer w-full bg-transparent border-b border-gray-300 py-4 text-lg text-slate-900 focus:outline-none focus:border-slate-900 transition-colors placeholder-transparent" placeholder="Name" required />
@@ -30,6 +39,20 @@ import Footer from '../components/Footer.astro';
           <div class="relative gsap-reveal">
             <input type="email" id="email" name="email" class="peer w-full bg-transparent border-b border-gray-300 py-4 text-lg text-slate-900 focus:outline-none focus:border-slate-900 transition-colors placeholder-transparent" placeholder="Email" required />
             <label for="email" class="absolute left-0 -top-3 text-sm text-gray-500 transition-all peer-placeholder-shown:text-lg peer-placeholder-shown:top-4 peer-focus:-top-3 peer-focus:text-sm peer-focus:text-slate-900 pointer-events-none">E-Mail</label>
+          </div>
+
+          <!-- Villa of Interest -->
+          <div class="relative gsap-reveal">
+            <select id="villa" name="villa" class="peer w-full bg-transparent border-b border-gray-300 py-4 text-lg text-slate-900 focus:outline-none focus:border-slate-900 transition-colors cursor-pointer appearance-none" required>
+              <option value="" disabled selected>Select a Villa of Interest</option>
+              {villas.map((villa) => (
+                <option value={villa.title}>{villa.title}</option>
+              ))}
+            </select>
+            <label for="villa" class="absolute left-0 -top-3 text-sm text-gray-500 transition-all peer-focus:-top-3 peer-focus:text-sm peer-focus:text-slate-900 pointer-events-none z-10">Villa of Interest</label>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-900">
+              <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+            </div>
           </div>
 
           <!-- Preferred Dates -->
@@ -95,8 +118,39 @@ import Footer from '../components/Footer.astro';
       }
     };
 
+    const initWhatsAppForm = () => {
+      const form = document.getElementById('whatsapp-contact-form');
+      if (form && !form.dataset.whatsappInit) {
+        form.dataset.whatsappInit = 'true';
+        form.addEventListener('submit', (e) => {
+          e.preventDefault();
+
+          const formData = new FormData(form as HTMLFormElement);
+          const name = formData.get('name') || '';
+          const email = formData.get('email') || '';
+          const villa = formData.get('villa') || '';
+          const dates = formData.get('dates') || '';
+          const experiences = formData.get('experiences') || '';
+
+          const messageTemplate = `*New Inquiry: Experience Papagayo* 🌴
+
+*Name:* ${name}
+*Email:* ${email}
+*Villa:* ${villa}
+*Dates:* ${dates}
+
+*Experience Details:*
+_${experiences}_`;
+
+          const encodedMessage = encodeURIComponent(messageTemplate);
+          window.open('https://wa.me/50688603621?text=' + encodedMessage, '_blank');
+        });
+      }
+    };
+
     document.addEventListener('DOMContentLoaded', () => {
       initFlatpickr();
+      initWhatsAppForm();
 
       // GSAP Animations
       const reveals = document.querySelectorAll('.gsap-reveal');
@@ -118,7 +172,10 @@ import Footer from '../components/Footer.astro';
       );
     });
 
-    document.addEventListener('astro:page-load', initFlatpickr);
+    document.addEventListener('astro:page-load', () => {
+      initFlatpickr();
+      initWhatsAppForm();
+    });
   </script>
 </Layout>
 
