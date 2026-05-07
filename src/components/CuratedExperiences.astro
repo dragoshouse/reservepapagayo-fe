@@ -1,5 +1,7 @@
 ---
-const experiences = [
+const { sanityData } = Astro.props;
+
+const fallbackExperiences = [
   { id: 1, category: "beach", title: "Prieta Beach Club", image: "https://img1.wsimg.com/isteam/ip/594de56d-d21f-446f-a9a0-cc641c5dd71e/(PRIETA%20BEACH%20CLUB)%20pg4545RGB%20copy.jpg/:/cr=t:0%25,l:0%25,w:66.68%25,h:100%25/rs=w:388,h:388,cg:true", description: "Offers something for every age, interest, and season, exclusively for guests of Peninsula Papagayo, with an exceptional variety of outdoor adventures, water sports, wellness activities, and year-round classes and events. Its relaxed poolside and beachfront setting combines refined comfort and attentive service with breathtaking natural surroundings." },
   { id: 2, category: "sports", title: "Golf & Tennis", image: "https://img1.wsimg.com/isteam/ip/594de56d-d21f-446f-a9a0-cc641c5dd71e/(GOLF%20)DSC00322_McInnis%20copy.jpg/:/cr=t:0%25,l:16.64%25,w:66.72%25,h:100%25/rs=w:388,h:388,cg:true", description: "Treat yourself to the ultimate eco-golf experience, where every swing is framed by panoramic views of white-sand beaches, turquoise waters, and emerald-green seashore paspalum turf. The 18-hole, par-72 Arnold Palmer Signature Golf Course meanders through lush forests and dramatic valleys." },
   { id: 3, category: "family", title: "Papagayo Park", image: "https://img1.wsimg.com/isteam/ip/594de56d-d21f-446f-a9a0-cc641c5dd71e/sport%20center.jpeg/:/cr=t:0%25,l:16.38%25,w:67.25%25,h:100%25/rs=w:388,h:388,cg:true", description: "Play, connect, and stay active all in one place. As our guest, you’ll have exclusive access to a vibrant space designed for wellness and community with modern fitness equipment, sports facilities, and kid-friendly areas." },
@@ -16,6 +18,21 @@ const experiences = [
   { id: 14, category: "sports", title: "Surf", image: "https://img1.wsimg.com/isteam/ip/594de56d-d21f-446f-a9a0-cc641c5dd71e/PAPAGAYO%20EXPLORERS%20CLUB%20)McInnis_073118_66319.jpg/:/cr=t:0%25,l:16.67%25,w:66.67%25,h:100%25/rs=w:388,h:388,cg:true", description: "Chase world-class waves with guided surf outings tailored to your skill level and style." },
   { id: 15, category: "family", title: "Bike Trails", image: "https://img1.wsimg.com/isteam/ip/594de56d-d21f-446f-a9a0-cc641c5dd71e/sport%20center.jpeg/:/cr=t:0%25,l:16.38%25,w:67.25%25,h:100%25/rs=w:388,h:388,cg:true", description: "Discover scenic bike routes perfect for family rides, nature breaks, and active afternoons together." }
 ];
+
+const displayExperiences = (sanityData?.experiencesGrid && sanityData.experiencesGrid.length > 0)
+  ? sanityData.experiencesGrid
+  : fallbackExperiences;
+
+const sectionTitle = sanityData?.sectionTitle || "More than a place to stay";
+const sectionBody = sanityData?.sectionBody || "A dedicated concierge, daily service, and curated experiences—designed to make every moment effortless.";
+
+const getExperienceValue = (item: any, index: number, key: "title" | "category" | "description") => {
+  return item?.[key] || fallbackExperiences[index % fallbackExperiences.length]?.[key] || "";
+};
+
+const getExperienceImage = (item: any, index: number) => {
+  return item?.imageUrl || item?.image || fallbackExperiences[index % fallbackExperiences.length]?.image || "";
+};
 
 const categories = [
   { id: "all", label: "All Experiences" },
@@ -50,29 +67,39 @@ const getGridClasses = (index: number) => {
 <section data-theme="light" class="bg-white py-24 text-black">
   <div class="container mx-auto px-4 max-w-7xl">
     <h2 class="text-4xl md:text-5xl font-serif text-center mb-16 uppercase tracking-widest text-black">
-      Endless ways to spend your day
+      {sectionTitle}
     </h2>
+    <p class="max-w-3xl mx-auto text-center text-lg md:text-xl text-black/60 font-light leading-relaxed mb-16">
+      {sectionBody}
+    </p>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 auto-rows-[300px] mb-16" id="bento-grid">
-      {experiences.map((exp, index) => (
+      {displayExperiences.map((exp, index) => {
+        const title = getExperienceValue(exp, index, "title");
+        const category = getExperienceValue(exp, index, "category");
+        const description = getExperienceValue(exp, index, "description");
+        const image = getExperienceImage(exp, index);
+
+        return (
         <div
           class={`experience-card cursor-pointer relative overflow-hidden group rounded-none ${getGridClasses(index)} bg-gray-100`}
-          data-category={exp.category}
-          data-title={exp.title}
-          data-description={exp.description}
-          data-image={exp.image}
+          data-category={category}
+          data-title={title}
+          data-description={description}
+          data-image={image}
         >
           <img
-            src={exp.image}
-            alt={exp.title}
+            src={image}
+            alt={title}
             class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
             loading="lazy"
           />
           <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center p-6 text-center">
-            <h3 class="text-white text-2xl md:text-3xl font-serif tracking-wide">{exp.title}</h3>
+            <h3 class="text-white text-2xl md:text-3xl font-serif tracking-wide">{title}</h3>
           </div>
         </div>
-      ))}
+        );
+      })}
     </div>
 
     <div class="flex flex-wrap justify-center gap-4">

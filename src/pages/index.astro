@@ -11,7 +11,24 @@ import Footer from '../components/Footer.astro';
 import { sanityClient } from 'sanity:client';
 import { urlFor } from '../utils/sanity';
 
-const query = `*[_type == "home"][0]{ ..., "videoUrl": heroBackgroundVideo.asset->url }`;
+const query = `*[_type == "home"][0]{
+  ...,
+  "videoUrl": heroBackgroundVideo.asset->url,
+  curatedExperiences {
+    sectionTitle,
+    sectionBody,
+    experiencesGrid[]->{
+      _id,
+      title,
+      category,
+      "imageUrl": image.asset->url,
+      description
+    }
+  },
+  sensorialTitle,
+  sensorialItalic,
+  finalCtaTitle
+}`;
 const homeData = await sanityClient.fetch(query).catch(() => ({}));
 
 const seoTitle = homeData?.seoTitle ?? "Experience Papagayo | A Private Peninsula Shaped by Nature";
@@ -24,6 +41,9 @@ const journalLabel = homeData?.journalSectionLabel ?? "Journal";
 const journalReadAll = homeData?.journalReadAllLabel ?? "Read All";
 const ctaTitle = homeData?.ctaTitle ?? "Your Sanctuary Awaits";
 const ctaButtonText = homeData?.ctaButtonText ?? "Inquire Now";
+const sensorialTitle = homeData?.sensorialTitle || "Designed for slower mornings, open afternoons, and long evenings.";
+const sensorialItalic = homeData?.sensorialItalic || "A stay that feels lived, not staged.";
+const finalCtaTitle = homeData?.finalCtaTitle || "Your Place to Be Together";
 ---
 
 <Layout title={seoTitle}>
@@ -52,19 +72,19 @@ const ctaButtonText = homeData?.ctaButtonText ?? "Inquire Now";
       </section>
 
 
-      <CuratedExperiences />
+      <CuratedExperiences sanityData={homeData?.curatedExperiences} />
       <Journal sectionLabel={journalLabel} readAllLabel={journalReadAll} />
 
       <!-- Block C: Sensorial & Final CTA -->
       <section class="relative bg-black text-white py-40 px-4 flex flex-col items-center justify-center text-center overflow-hidden" data-theme="dark">
         <p class="text-xl md:text-2xl font-light text-white/70 mb-4">
-          Designed for slower mornings, open afternoons, and long evenings.
+          {sensorialTitle}
         </p>
         <p class="text-xl md:text-2xl italic font-serif text-white/50 mb-16">
-          A stay that feels lived, not staged.
+          {sensorialItalic}
         </p>
         <h2 class="text-5xl md:text-7xl font-serif text-white mb-20">
-          Your Place to Be Together
+          {finalCtaTitle}
         </h2>
 
         <!-- Magnetic Circular Button -->
