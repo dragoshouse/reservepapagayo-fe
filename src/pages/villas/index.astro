@@ -11,6 +11,9 @@ type SanityVilla = {
   slug: string;
   imageUrl?: string | null;
   overviewShort?: string | null;
+  bedrooms?: number | null;
+  bathrooms?: number | null;
+  maxGuests?: number | null;
 };
 
 const query = `*[_type == "villa"]{
@@ -21,8 +24,20 @@ const query = `*[_type == "villa"]{
     heroPosterImage.asset->url,
     galleryItems[0].image.asset->url
   ),
-  overviewShort
+  overviewShort,
+  bedrooms,
+  bathrooms,
+  maxGuests
 }`;
+
+const formatVillaSpecs = (villa?: SanityVilla | null) =>
+  [
+    villa?.bedrooms != null ? `${villa.bedrooms} BEDS` : null,
+    villa?.bathrooms != null ? `${villa.bathrooms} BATHS` : null,
+    villa?.maxGuests != null ? `${villa.maxGuests} GUESTS` : null
+  ]
+    .filter(Boolean)
+    .join(' | ') || 'PRIVATE RESIDENCE';
 
 const villas = await sanityClient.fetch<SanityVilla[]>(query);
 ---
@@ -84,7 +99,7 @@ const villas = await sanityClient.fetch<SanityVilla[]>(query);
                       {villa.overviewShort?.trim() || 'A quietly composed private residence within the Papagayo landscape.'}
                     </p>
                     <p class="mt-6 text-[10px] uppercase tracking-widest text-black/50">
-                      ARCHITECTURE | RESIDENTIAL | COSTA RICA
+                      {formatVillaSpecs(villa)}
                     </p>
                   </figcaption>
                 </figure>
