@@ -1,14 +1,96 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { Image } from 'astro:assets';
 import Header from '../components/Header.astro';
 import FullscreenMenu from '../components/FullscreenMenu.astro';
 import CTA from '../components/CTA.astro';
 import Footer from '../components/Footer.astro';
-import heroImage from '../assets/pap4336RGB.jpg';
+import fallbackHeroImage from '../assets/pap4336RGB.jpg';
+import { sanityClient, urlFor } from '../utils/sanity';
+
+const query = `*[_type == "peninsula"][0]{
+  heroTitle,
+  heroSubtitle,
+  heroImage,
+  manifestoLines,
+  spotlightEyebrow,
+  spotlightTitle,
+  spotlightBody,
+  spotlightImages[]{
+    alt,
+    "imageUrl": image.asset->url
+  },
+  ecosystemTitle,
+  ecosystemCards[]{
+    title,
+    description
+  },
+  ctaTitle,
+  ctaButtonText
+}`;
+
+let peninsulaData = null;
+try {
+  peninsulaData = await sanityClient.fetch(query);
+} catch (error) {
+  console.error("Error fetching Peninsula data:", error);
+}
+
+const fallbackManifestoLines = [
+  'Here, the Pacific Ocean meets untamed jungle canopy.',
+  'But beyond the staggering beauty lies something rarer:',
+  'absolute peace of mind.',
+  'A gated, 1,400-acre private reserve where time slows down',
+  'and the outside world falls away.',
+];
+
+const fallbackSpotlightImages = [
+  {
+    imageUrl: 'https://images.unsplash.com/photo-1596436889106-be35e843f974?q=80&w=2000',
+    alt: 'Luxury nature resort',
+  },
+  {
+    imageUrl: 'https://images.unsplash.com/photo-1540541338287-41700207dee6?q=80&w=2000',
+    alt: 'Untamed jungle canopy',
+  },
+  {
+    imageUrl: 'https://images.unsplash.com/photo-1583417647209-6fa70416cd62?q=80&w=2000',
+    alt: 'Pacific Ocean meets the shore',
+  },
+];
+
+const fallbackEcosystemCards = [
+  {
+    title: 'Marina Papagayo',
+    description: 'A deep-water haven for superyachts.',
+  },
+  {
+    title: 'Arnold Palmer Course',
+    description: '18 holes of championship golf over the ocean.',
+  },
+  {
+    title: 'Prieta Bay Beach Club',
+    description: 'Exclusive access to pristine sands.',
+  },
+];
+
+const manifestoLines = peninsulaData?.manifestoLines?.length
+  ? peninsulaData.manifestoLines
+  : fallbackManifestoLines;
+
+const spotlightImages = peninsulaData?.spotlightImages?.filter((image) => image?.imageUrl)?.length
+  ? peninsulaData.spotlightImages.filter((image) => image?.imageUrl)
+  : fallbackSpotlightImages;
+
+const ecosystemCards = peninsulaData?.ecosystemCards?.length
+  ? peninsulaData.ecosystemCards
+  : fallbackEcosystemCards;
+
+const heroImageUrl = peninsulaData?.heroImage
+  ? urlFor(peninsulaData.heroImage).width(2400).quality(90).url()
+  : fallbackHeroImage.src;
 ---
 
-<Layout title="The Peninsula">
+<Layout title={peninsulaData?.heroTitle || 'The Peninsula'}>
   <Header />
   <FullscreenMenu />
 
@@ -17,9 +99,9 @@ import heroImage from '../assets/pap4336RGB.jpg';
       <!-- 1. Hero Section -->
       <section class="relative h-screen w-full" data-theme="dark">
         <!-- Background Image -->
-        <Image
-          src={heroImage}
-          alt="The Peninsula Papagayo"
+        <img
+          src={heroImageUrl}
+          alt={peninsulaData?.heroTitle || 'The Peninsula Papagayo'}
           class="absolute inset-0 w-full h-full object-cover"
         />
         <!-- Gradient Overlay -->
@@ -27,9 +109,11 @@ import heroImage from '../assets/pap4336RGB.jpg';
 
         <!-- Content -->
         <div class="absolute inset-0 flex flex-col justify-end p-8 md:p-16 lg:p-24 z-10 text-white">
-          <h1 class="text-6xl md:text-8xl lg:text-9xl font-serif mb-4">The Peninsula</h1>
+          <h1 class="text-6xl md:text-8xl lg:text-9xl font-serif mb-4">
+            {peninsulaData?.heroTitle || 'The Peninsula'}
+          </h1>
           <p class="text-xl md:text-2xl font-light tracking-wide max-w-2xl">
-            More than a destination. A protected sanctuary.
+            {peninsulaData?.heroSubtitle || 'More than a destination. A protected sanctuary.'}
           </p>
         </div>
       </section>
@@ -38,11 +122,9 @@ import heroImage from '../assets/pap4336RGB.jpg';
       <section class="min-h-screen flex items-center justify-center px-8 md:px-16 lg:px-24 py-32 bg-[#F9F9F9] text-gray-900" data-theme="light">
         <div class="max-w-5xl mx-auto text-center">
           <p class="text-3xl md:text-5xl lg:text-6xl font-serif leading-relaxed">
-            <span class="gsap-reveal-text inline-block opacity-0 translate-y-8">Here, the Pacific Ocean meets untamed jungle canopy.</span>
-            <span class="gsap-reveal-text inline-block opacity-0 translate-y-8">But beyond the staggering beauty lies something rarer:</span>
-            <span class="gsap-reveal-text inline-block opacity-0 translate-y-8">absolute peace of mind.</span>
-            <span class="gsap-reveal-text inline-block opacity-0 translate-y-8">A gated, 1,400-acre private reserve where time slows down</span>
-            <span class="gsap-reveal-text inline-block opacity-0 translate-y-8">and the outside world falls away.</span>
+            {manifestoLines.map((line) => (
+              <span class="gsap-reveal-text block opacity-0 translate-y-8">{line}</span>
+            ))}
           </p>
         </div>
       </section>
@@ -53,27 +135,28 @@ import heroImage from '../assets/pap4336RGB.jpg';
 
           <!-- Left Column (Sticky) -->
           <div class="lg:w-1/2 lg:sticky lg:top-0 lg:h-screen flex flex-col justify-center lg:pr-12 py-16 lg:py-0">
-            <span class="text-sm font-sans tracking-widest uppercase mb-6 text-gray-500">A Haven for Solo Travelers</span>
+            <span class="text-sm font-sans tracking-widest uppercase mb-6 text-gray-500">
+              {peninsulaData?.spotlightEyebrow || 'A Haven for Solo Travelers'}
+            </span>
             <h2 class="text-4xl md:text-5xl lg:text-6xl font-serif mb-8 leading-tight">
-              Uncompromising Security.<br/>
-              Unparalleled Freedom.
+              {peninsulaData?.spotlightTitle || 'Uncompromising Security. Unparalleled Freedom.'}
             </h2>
             <p class="text-lg md:text-xl font-light leading-relaxed text-gray-700">
-              Recognized by Travel + Leisure as one of the world's premier destinations for solo travelers, Peninsula Papagayo offers an environment of effortless safety. Whether exploring miles of private trails at dawn or dining under the stars, the implicit promise is absolute security. It is a place where discerning women, families, and solo adventurers find the ultimate luxury: the freedom to simply be.
+              {peninsulaData?.spotlightBody || "Recognized by Travel + Leisure as one of the world's premier destinations for solo travelers, Peninsula Papagayo offers an environment of effortless safety. Whether exploring miles of private trails at dawn or dining under the stars, the implicit promise is absolute security. It is a place where discerning women, families, and solo adventurers find the ultimate luxury: the freedom to simply be."}
             </p>
           </div>
 
           <!-- Right Column (Scrolling Images) -->
           <div class="lg:w-1/2 flex flex-col gap-16 lg:gap-32 py-16 lg:py-32">
-            <div class="w-full aspect-[3/4] overflow-hidden">
-              <img src="https://images.unsplash.com/photo-1596436889106-be35e843f974?q=80&w=2000" alt="Luxury nature resort" class="w-full h-full object-cover" />
-            </div>
-            <div class="w-full aspect-[4/3] overflow-hidden">
-              <img src="https://images.unsplash.com/photo-1540541338287-41700207dee6?q=80&w=2000" alt="Untamed jungle canopy" class="w-full h-full object-cover" />
-            </div>
-            <div class="w-full aspect-[3/4] overflow-hidden">
-              <img src="https://images.unsplash.com/photo-1583417647209-6fa70416cd62?q=80&w=2000" alt="Pacific Ocean meets the shore" class="w-full h-full object-cover" />
-            </div>
+            {spotlightImages.map((image, index) => (
+              <div class={`w-full ${index % 2 === 1 ? 'aspect-[4/3]' : 'aspect-[3/4]'} overflow-hidden`}>
+                <img
+                  src={image.imageUrl}
+                  alt={image.alt || peninsulaData?.spotlightTitle || 'Peninsula Papagayo'}
+                  class="w-full h-full object-cover"
+                />
+              </div>
+            ))}
           </div>
 
         </div>
@@ -82,37 +165,27 @@ import heroImage from '../assets/pap4336RGB.jpg';
       <!-- 4. The Ecosystem -->
       <section class="py-32 px-8 md:px-16 lg:px-24 bg-[#1A1A1A] text-white" data-theme="dark">
         <div class="max-w-7xl mx-auto">
-          <h2 class="text-4xl md:text-5xl lg:text-6xl font-serif mb-16 text-center">The Ecosystem</h2>
+          <h2 class="text-4xl md:text-5xl lg:text-6xl font-serif mb-16 text-center">
+            {peninsulaData?.ecosystemTitle || 'The Ecosystem'}
+          </h2>
 
           <div class="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
-            <!-- Card 1 -->
-            <div class="flex flex-col border-t border-white/20 pt-8">
-              <h3 class="text-2xl font-serif mb-4">Marina Papagayo</h3>
-              <p class="text-white/70 font-light leading-relaxed">
-                A deep-water haven for superyachts.
-              </p>
-            </div>
-
-            <!-- Card 2 -->
-            <div class="flex flex-col border-t border-white/20 pt-8">
-              <h3 class="text-2xl font-serif mb-4">Arnold Palmer Course</h3>
-              <p class="text-white/70 font-light leading-relaxed">
-                18 holes of championship golf over the ocean.
-              </p>
-            </div>
-
-            <!-- Card 3 -->
-            <div class="flex flex-col border-t border-white/20 pt-8">
-              <h3 class="text-2xl font-serif mb-4">Prieta Bay Beach Club</h3>
-              <p class="text-white/70 font-light leading-relaxed">
-                Exclusive access to pristine sands.
-              </p>
-            </div>
+            {ecosystemCards.map((card) => (
+              <div class="flex flex-col border-t border-white/20 pt-8">
+                <h3 class="text-2xl font-serif mb-4">{card.title}</h3>
+                <p class="text-white/70 font-light leading-relaxed">
+                  {card.description}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      <CTA title="Your Sanctuary Awaits" buttonText="Inquire Now" />
+      <CTA
+        title={peninsulaData?.ctaTitle || 'Your Sanctuary Awaits'}
+        buttonText={peninsulaData?.ctaButtonText || 'Inquire Now'}
+      />
     </main>
   </div>
 
