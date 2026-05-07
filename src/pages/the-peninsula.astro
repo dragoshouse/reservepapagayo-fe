@@ -11,7 +11,7 @@ const query = `*[_type == "peninsula"][0]{
   heroTitle,
   heroSubtitle,
   heroImage,
-  manifestoLines,
+  manifestoText,
   spotlightEyebrow,
   spotlightTitle,
   spotlightBody,
@@ -35,13 +35,8 @@ try {
   console.error("Error fetching Peninsula data:", error);
 }
 
-const fallbackManifestoLines = [
-  'Here, the Pacific Ocean meets untamed jungle canopy.',
-  'But beyond the staggering beauty lies something rarer:',
-  'absolute peace of mind.',
-  'A gated, 1,400-acre private reserve where time slows down',
-  'and the outside world falls away.',
-];
+const fallbackManifestoText =
+  'Here, the Pacific Ocean meets untamed jungle canopy. But beyond the staggering beauty lies something rarer: absolute peace of mind. A gated, 1,400-acre private reserve where time slows down and the outside world falls away.';
 
 const fallbackSpotlightImages = [
   {
@@ -73,9 +68,19 @@ const fallbackEcosystemCards = [
   },
 ];
 
-const manifestoLines = peninsulaData?.manifestoLines?.length
-  ? peninsulaData.manifestoLines
-  : fallbackManifestoLines;
+const manifestoText = peninsulaData?.manifestoText?.trim() || fallbackManifestoText;
+const manifestoFragments = manifestoText
+  .split('. ')
+  .map((fragment) => {
+    const trimmedFragment = fragment.trim();
+
+    if (!trimmedFragment) {
+      return '';
+    }
+
+    return /[.!?]$/.test(trimmedFragment) ? trimmedFragment : `${trimmedFragment}.`;
+  })
+  .filter(Boolean);
 
 const spotlightImages = peninsulaData?.spotlightImages?.filter((image) => image?.imageUrl)?.length
   ? peninsulaData.spotlightImages.filter((image) => image?.imageUrl)
@@ -122,8 +127,8 @@ const heroImageUrl = peninsulaData?.heroImage
       <section class="min-h-screen flex items-center justify-center px-8 md:px-16 lg:px-24 py-32 bg-[#F9F9F9] text-gray-900" data-theme="light">
         <div class="max-w-5xl mx-auto text-center">
           <p class="text-3xl md:text-5xl lg:text-6xl font-serif leading-relaxed">
-            {manifestoLines.map((line) => (
-              <span class="gsap-reveal-text block opacity-0 translate-y-8">{line}</span>
+            {manifestoFragments.map((fragment) => (
+              <span class="gsap-reveal-text block opacity-0 translate-y-8">{fragment}</span>
             ))}
           </p>
         </div>
