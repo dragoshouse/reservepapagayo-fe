@@ -215,19 +215,32 @@ const formattedStartingPrice =
       )}
 
       {ambientVideoUrl && (
-        <section class="villa-ambient-video relative bg-[#F8F7F3] px-0 py-20 md:py-32 overflow-hidden" data-theme="light" aria-label={`${title} ambient video`}>
-          <div class="relative h-[70vh] min-h-[34rem] w-full overflow-hidden bg-black">
+        <section class="villa-media-player relative bg-[#F8F7F3] px-0 py-20 md:py-32 overflow-hidden" data-theme="light" aria-label={`${title} video experience`}>
+          <div class="relative w-screen h-[min(80vh,700px)] left-1/2 -translate-x-1/2 bg-black overflow-hidden" data-villa-video-player>
             <video
-              class="h-full w-full object-cover"
-              data-ambient-video
+              class="absolute inset-0 w-full h-full object-cover"
+              data-villa-video
               data-hls-src={ambientVideoUrl}
-              autoplay
-              muted
-              loop
               playsinline
               preload="metadata"
             ></video>
-            <div class="absolute inset-0 bg-gradient-to-b from-black/15 via-transparent to-black/20"></div>
+            <div class="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/25"></div>
+            <button
+              type="button"
+              class="group absolute left-1/2 top-1/2 z-10 flex h-24 w-24 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-white/35 bg-black/20 text-white shadow-[0_24px_80px_rgba(0,0,0,0.35)] backdrop-blur-sm transition duration-300 hover:scale-105 hover:border-white/70 hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80 md:h-28 md:w-28"
+              data-villa-video-toggle
+              aria-label={`Play ${title} video`}
+              aria-pressed="false"
+            >
+              <svg
+                class="ml-1 h-10 w-10 transition-transform duration-300 group-hover:scale-95 md:h-12 md:w-12"
+                viewBox="0 0 48 48"
+                fill="none"
+                aria-hidden="true"
+              >
+                <path d="M18 14L34 24L18 34V14Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+              </svg>
+            </button>
           </div>
         </section>
       )}
@@ -328,48 +341,88 @@ const formattedStartingPrice =
   import { gsap } from 'gsap';
   import Hls from 'hls.js';
 
-  function initAmbientVideos() {
-    const ambientVideos = document.querySelectorAll<HTMLVideoElement>('video[data-ambient-video]');
+  function initVillaVideoPlayers() {
+    const videoPlayers = document.querySelectorAll<HTMLElement>('[data-villa-video-player]');
 
-    ambientVideos.forEach((video) => {
-      if (video.dataset.hlsInitialized === 'true') return;
+    videoPlayers.forEach((player) => {
+      const video = player.querySelector<HTMLVideoElement>('video[data-villa-video]');
+      const toggle = player.querySelector<HTMLButtonElement>('[data-villa-video-toggle]');
 
-      const videoUrl = video.dataset.hlsSrc;
-      if (!videoUrl) return;
+      if (!video || !toggle) return;
 
-      video.dataset.hlsInitialized = 'true';
-      video.muted = true;
-      video.loop = true;
-      video.playsInline = true;
+      if (video.dataset.hlsInitialized !== 'true') {
+        const videoUrl = video.dataset.hlsSrc;
 
-      const startPlayback = () => {
+        video.dataset.hlsInitialized = 'true';
+        video.playsInline = true;
+
+        if (videoUrl && Hls.isSupported()) {
+          const hls = new Hls({
+            enableWorker: true
+          });
+
+          hls.loadSource(videoUrl);
+          hls.attachMedia(video);
+
+          video.addEventListener('emptied', () => hls.destroy(), { once: true });
+        } else if (videoUrl && video.canPlayType('application/vnd.apple.mpegurl')) {
+          video.src = videoUrl;
+        }
+      }
+
+      if (player.dataset.controlsInitialized === 'true') return;
+
+      player.dataset.controlsInitialized = 'true';
+
+      const showPlayButton = () => {
+        toggle.classList.remove('opacity-0', 'pointer-events-none', 'scale-90');
+        toggle.classList.add('opacity-100', 'scale-100');
+        toggle.setAttribute('aria-label', `Play ${document.title.replace(' | Experience Papagayo', '')} video`);
+        toggle.setAttribute('aria-pressed', 'false');
+      };
+
+      const hidePlayButton = () => {
+        toggle.classList.add('opacity-0', 'pointer-events-none', 'scale-90');
+        toggle.classList.remove('opacity-100', 'scale-100');
+        toggle.setAttribute('aria-label', `Pause ${document.title.replace(' | Experience Papagayo', '')} video`);
+        toggle.setAttribute('aria-pressed', 'true');
+      };
+
+      const playVideo = () => {
         video.play().catch(() => {
-          // Autoplay can still be blocked by browser/user settings; keep the media ready.
+          showPlayButton();
         });
       };
 
-      if (Hls.isSupported()) {
-        const hls = new Hls({
-          enableWorker: true
-        });
+      const pauseVideo = () => {
+        video.pause();
+      };
 
-        hls.loadSource(videoUrl);
-        hls.attachMedia(video);
-        hls.on(Hls.Events.MANIFEST_PARSED, startPlayback);
+      toggle.addEventListener('click', (event) => {
+        event.stopPropagation();
 
-        video.addEventListener('emptied', () => hls.destroy(), { once: true });
-        return;
-      }
+        if (video.paused) {
+          playVideo();
+        } else {
+          pauseVideo();
+        }
+      });
 
-      if (video.canPlayType('application/vnd.apple.mpegurl')) {
-        video.src = videoUrl;
-        video.addEventListener('loadedmetadata', startPlayback, { once: true });
-      }
+      video.addEventListener('click', () => {
+        if (!video.paused) {
+          pauseVideo();
+        }
+      });
+
+      video.addEventListener('play', hidePlayButton);
+      video.addEventListener('pause', showPlayButton);
+      video.addEventListener('ended', showPlayButton);
+      showPlayButton();
     });
   }
 
   function initVillaTemplate() {
-    initAmbientVideos();
+    initVillaVideoPlayers();
 
     const title = document.querySelector('.villa-title');
     if (title) {
