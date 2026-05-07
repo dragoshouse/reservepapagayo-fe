@@ -5,32 +5,26 @@ import FullscreenMenu from '../../components/FullscreenMenu.astro';
 import CTA from '../../components/CTA.astro';
 import Footer from '../../components/Footer.astro';
 import { sanityClient } from 'sanity:client';
-import { urlFor } from '../../utils/sanity';
 
 type SanityVilla = {
   title: string;
   slug: string;
-  heroPosterImage: unknown;
+  imageUrl?: string | null;
   overviewShort?: string | null;
 };
 
 const query = `*[_type == "villa"]{
   title,
   "slug": slug.current,
-  heroPosterImage,
+  "imageUrl": coalesce(
+    heroImage.asset->url, 
+    heroPosterImage.asset->url,
+    galleryItems[0].image.asset->url
+  ),
   overviewShort
 }`;
 
-let villas: Array<SanityVilla & { imageUrl: string | null }> = [];
-
-try {
-  villas = (await sanityClient.fetch<SanityVilla[]>(query)).map((villa) => ({
-    ...villa,
-    imageUrl: villa.heroPosterImage ? urlFor(villa.heroPosterImage).url() : null
-  }));
-} catch (e) {
-  console.warn('Error fetching villas:', e);
-}
+const villas = await sanityClient.fetch<SanityVilla[]>(query);
 ---
 
 <Layout title="The Villas | Experience Papagayo">
