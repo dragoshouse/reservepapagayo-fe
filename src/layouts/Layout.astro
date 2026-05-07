@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import { ViewTransitions } from 'astro:transitions';
 
 interface Props {
   title?: string;
@@ -15,12 +16,17 @@ const { title = 'Experience Papagayo' } = Astro.props;
     <meta name="viewport" content="width=device-width" />
     <meta name="description" content="A private peninsula shaped by nature" />
     <title>{title}</title>
+    <ViewTransitions />
   </head>
   <body>
     <slot />
 
     <script>
       import Lenis from '@studio-freight/lenis';
+      import { gsap } from 'gsap';
+      import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+      gsap.registerPlugin(ScrollTrigger);
 
       const lenis = new Lenis({
         duration: 1.2,
@@ -32,6 +38,7 @@ const { title = 'Experience Papagayo' } = Astro.props;
         smoothTouch: false,
         touchMultiplier: 2,
         infinite: false,
+        lerp: 0.1,
       });
 
       // Expose to window for other components to access
@@ -43,6 +50,11 @@ const { title = 'Experience Papagayo' } = Astro.props;
       }
 
       requestAnimationFrame(raf);
+
+      document.addEventListener('astro:page-load', () => {
+        ScrollTrigger.refresh();
+        lenis.start();
+      });
     </script>
   </body>
 </html>
