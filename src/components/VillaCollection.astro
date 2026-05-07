@@ -42,7 +42,7 @@ const formatBathrooms = (value: number | null) => {
 };
 ---
 
-<section id="villa-collection-section" class="relative isolate w-full overflow-x-hidden bg-black py-20 md:py-28" data-theme="dark">
+<section id="villa-collection-section" class="relative w-screen left-1/2 -translate-x-1/2 bg-black py-20 md:py-28" data-theme="dark">
   <h2 class="sr-only">{sectionTitle}</h2>
 
   {villas.length === 0 ? (
@@ -53,7 +53,7 @@ const formatBathrooms = (value: number | null) => {
     <div id="villa-collection-shell" class="relative w-full">
       <button
         type="button"
-        class="villa-nav villa-nav-prev group absolute left-[calc(-50vw+50%+1rem)] top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-black/35 text-white/85 backdrop-blur-md transition duration-300 hover:border-white/60 hover:bg-white hover:text-black focus:outline-none focus:ring-2 focus:ring-white/70 disabled:pointer-events-none disabled:opacity-25 md:left-[calc(-50vw+50%+3rem)] md:h-14 md:w-14"
+        class="villa-nav villa-nav-prev group absolute left-4 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-black/35 text-white/85 backdrop-blur-md transition duration-300 hover:border-white/60 hover:bg-white hover:text-black focus:outline-none focus:ring-2 focus:ring-white/70 disabled:pointer-events-none disabled:opacity-25 md:left-8 md:h-14 md:w-14"
         aria-label="Scroll villa collection left"
         data-villa-prev
       >
@@ -64,7 +64,7 @@ const formatBathrooms = (value: number | null) => {
 
       <div
         id="villa-track"
-        class="no-scrollbar relative left-[calc(-50vw+50%)] flex w-screen snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth px-4 py-4 md:gap-8 md:px-[10vw] lg:gap-10"
+        class="no-scrollbar flex w-full snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth px-4 md:px-8 lg:gap-8"
         data-villa-track
         tabindex="0"
         aria-label="Scrollable villa collection"
@@ -72,7 +72,7 @@ const formatBathrooms = (value: number | null) => {
         {villas.map((villa, index) => (
           <a
             href={`/villas/${villa.slug}`}
-            class="villa-card group relative block h-[min(72vh,680px)] min-h-[430px] w-[85vw] shrink-0 snap-center overflow-hidden rounded-none bg-zinc-900 outline-none transition duration-500 hover:-translate-y-1 focus-visible:ring-2 focus-visible:ring-white/80 md:h-[min(74vh,720px)] md:min-h-[540px] md:w-[50vw] lg:w-[40vw]"
+            class="villa-card group relative block h-[min(72vh,680px)] min-h-[430px] w-[85vw] shrink-0 snap-center overflow-hidden rounded-none bg-zinc-900 outline-none transition duration-500 hover:-translate-y-1 focus-visible:ring-2 focus-visible:ring-white/80 md:h-[min(74vh,720px)] md:min-h-[540px] md:w-[50vw] lg:w-[45vw]"
             data-index={index}
           >
             <div class="villa-image-wrapper absolute inset-0 rounded-none">
@@ -113,12 +113,12 @@ const formatBathrooms = (value: number | null) => {
             </div>
           </a>
         ))}
-        <div class="shrink-0 w-4 md:w-[10vw]" aria-hidden="true"></div>
+        <div class="shrink-0 w-4 md:w-8" aria-hidden="true"></div>
       </div>
 
       <button
         type="button"
-        class="villa-nav villa-nav-next group absolute right-[calc(-50vw+50%+1rem)] top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-black/35 text-white/85 backdrop-blur-md transition duration-300 hover:border-white/60 hover:bg-white hover:text-black focus:outline-none focus:ring-2 focus:ring-white/70 disabled:pointer-events-none disabled:opacity-25 md:right-[calc(-50vw+50%+3rem)] md:h-14 md:w-14"
+        class="villa-nav villa-nav-next group absolute right-4 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-black/35 text-white/85 backdrop-blur-md transition duration-300 hover:border-white/60 hover:bg-white hover:text-black focus:outline-none focus:ring-2 focus:ring-white/70 disabled:pointer-events-none disabled:opacity-25 md:right-8 md:h-14 md:w-14"
         aria-label="Scroll villa collection right"
         data-villa-next
       >
