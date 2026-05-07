@@ -42,128 +42,174 @@ const formatBathrooms = (value: number | null) => {
 };
 ---
 
-<section id="villa-collection-section" class="relative h-screen w-full overflow-hidden bg-black" data-theme="dark">
+<section id="villa-collection-section" class="relative isolate w-full overflow-hidden bg-black py-20 md:py-28" data-theme="dark">
   <h2 class="sr-only">{sectionTitle}</h2>
 
   {villas.length === 0 ? (
-    <section class="w-full bg-black py-32 flex items-center justify-center">
-      <p class="text-xl text-white/50 font-light tracking-wide">Curating our exclusive collection...</p>
+    <section class="flex min-h-[60vh] w-full items-center justify-center bg-black px-6 py-32">
+      <p class="text-center text-xl font-light tracking-wide text-white/50">Curating our exclusive collection...</p>
     </section>
   ) : (
-    <div id="villa-pin-container" class="h-screen w-full flex items-center overflow-hidden">
-      <div id="villa-track" class="flex flex-nowrap w-[max-content] h-[85vh] items-center px-[5vw] md:px-[10vw] gap-12 md:gap-24">
+    <div id="villa-collection-shell" class="relative w-full">
+      <div class="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-black via-black/70 to-transparent md:w-32"></div>
+      <div class="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-black via-black/70 to-transparent md:w-32"></div>
+
+      <button
+        type="button"
+        class="villa-nav villa-nav-prev group absolute left-4 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/30 text-white/80 shadow-2xl shadow-black/30 backdrop-blur-md transition duration-300 hover:border-white/50 hover:bg-white hover:text-black focus:outline-none focus:ring-2 focus:ring-white/70 disabled:pointer-events-none disabled:opacity-30 md:left-8 md:h-14 md:w-14"
+        aria-label="Scroll villa collection left"
+        data-villa-prev
+      >
+        <svg class="h-5 w-5 transition-transform duration-300 group-hover:-translate-x-0.5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M15 5L8 12L15 19" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </button>
+
+      <div
+        id="villa-track"
+        class="no-scrollbar flex w-full snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth px-[6vw] py-4 sm:gap-7 md:gap-10 md:px-[10vw] lg:gap-14"
+        data-villa-track
+        tabindex="0"
+        aria-label="Scrollable villa collection"
+      >
         {villas.map((villa, index) => (
           <a
             href={`/villas/${villa.slug}`}
-            class="villa-card relative w-[85vw] md:w-[35vw] aspect-[4/5] flex-shrink-0 cursor-pointer group block overflow-hidden"
+            class="villa-card group relative block h-[min(68vh,620px)] min-h-[430px] w-[82vw] max-w-[430px] flex-none snap-center overflow-hidden rounded-[1.75rem] bg-zinc-900 shadow-2xl shadow-black/40 outline-none transition duration-500 hover:-translate-y-1 hover:shadow-black/60 focus-visible:ring-2 focus-visible:ring-white/80 sm:w-[68vw] md:h-[min(72vh,680px)] md:min-h-[520px] md:w-[44vw] md:max-w-[560px] lg:w-[34vw] xl:w-[30vw]"
             data-index={index}
           >
-            <div class="villa-image-wrapper absolute inset-0 w-full h-full scale-[1.1]">
+            <div class="villa-image-wrapper absolute inset-0 overflow-hidden">
               {villa.imageUrl && (
                 <img
                   src={villa.imageUrl}
                   alt={villa.title}
-                  class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  class="h-full w-full scale-105 object-cover transition-transform duration-700 ease-out group-hover:scale-110"
                   loading="lazy"
                 />
               )}
             </div>
 
-            <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div class="absolute inset-0 bg-gradient-to-t from-black via-black/55 to-transparent opacity-95 transition-opacity duration-500 group-hover:opacity-100"></div>
+            <div class="absolute inset-x-0 bottom-0 z-10 max-h-full overflow-hidden p-6 text-white sm:p-7 md:p-8 lg:p-10">
+              <div class="flex min-h-0 flex-col justify-end">
+                <span class="mb-3 block text-base text-white/60 transition-transform duration-300 group-hover:translate-y-1 md:mb-4 md:text-lg">↓</span>
+                <h3 class="villa-title font-serif text-[clamp(2rem,8vw,3.5rem)] leading-[0.95] tracking-[-0.03em] text-white md:text-[clamp(2.75rem,4vw,4.75rem)]">
+                  {villa.title}
+                </h3>
 
-            <div class="absolute bottom-0 left-0 w-full p-8 translate-y-4 group-hover:translate-y-0 transition-transform duration-500 text-white flex flex-col justify-end">
-              <span class="text-white/60 text-lg mb-4 block group-hover:translate-y-1 transition-transform duration-300">↓</span>
-              <h3 class="text-white font-serif text-3xl md:text-5xl leading-tight mb-4">
-                {villa.title}
-              </h3>
+                <p class="mt-4 w-full border-b border-white/20 pb-4 text-[0.68rem] uppercase tracking-[0.18em] text-white/80 md:mt-5 md:text-sm">
+                  {villa.bedrooms ?? '—'} bedrooms &middot; {villa.maxGuests ?? '12-16'} guests
+                </p>
 
-              <p class="text-white/80 text-xs md:text-sm tracking-[0.18em] uppercase mb-6 border-b border-white/20 pb-4 w-full">
-                {villa.bedrooms ?? '—'} bedrooms &middot; {villa.maxGuests ?? '12-16'} guests
-              </p>
+                <p class="villa-summary mt-4 max-w-sm text-sm font-light leading-relaxed text-white/75 md:mt-5 md:text-base">
+                  {villa.overviewShort ?? 'A private sanctuary offering unparalleled views and quiet luxury.'}
+                </p>
 
-              <p class="text-white/70 text-sm md:text-base mb-8 max-w-sm font-light">
-                {villa.overviewShort ?? 'A private sanctuary offering unparalleled views and quiet luxury.'}
-              </p>
-
-              <span class="flex items-center text-white/90 text-sm tracking-widest uppercase group-hover:text-white transition-colors duration-300">
-                <span class="mr-3">→ Discover</span>
-              </span>
+                <span class="mt-6 flex items-center text-xs uppercase tracking-[0.24em] text-white/90 transition-colors duration-300 group-hover:text-white md:mt-8 md:text-sm">
+                  <span class="mr-3">Discover</span>
+                  <svg class="h-4 w-8 transition-transform duration-300 group-hover:translate-x-1" viewBox="0 0 40 16" fill="none" aria-hidden="true">
+                    <path d="M1 8H37" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"></path>
+                    <path d="M31 2L37 8L31 14" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"></path>
+                  </svg>
+                </span>
+              </div>
             </div>
           </a>
         ))}
       </div>
+
+      <button
+        type="button"
+        class="villa-nav villa-nav-next group absolute right-4 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/30 text-white/80 shadow-2xl shadow-black/30 backdrop-blur-md transition duration-300 hover:border-white/50 hover:bg-white hover:text-black focus:outline-none focus:ring-2 focus:ring-white/70 disabled:pointer-events-none disabled:opacity-30 md:right-8 md:h-14 md:w-14"
+        aria-label="Scroll villa collection right"
+        data-villa-next
+      >
+        <svg class="h-5 w-5 transition-transform duration-300 group-hover:translate-x-0.5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M9 5L16 12L9 19" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </button>
     </div>
   )}
 </section>
 
+<style>
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .villa-title,
+  .villa-summary {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .villa-title {
+    -webkit-line-clamp: 3;
+  }
+
+  .villa-summary {
+    -webkit-line-clamp: 3;
+  }
+
+  @media (max-width: 420px) {
+    .villa-card {
+      min-height: 400px;
+    }
+
+    .villa-summary {
+      -webkit-line-clamp: 2;
+    }
+  }
+</style>
+
 <script>
-  import { gsap } from 'gsap';
-  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  const initVillaCollection = () => {
+    const track = document.querySelector<HTMLElement>('[data-villa-track]');
+    const prev = document.querySelector<HTMLButtonElement>('[data-villa-prev]');
+    const next = document.querySelector<HTMLButtonElement>('[data-villa-next]');
 
-  gsap.registerPlugin(ScrollTrigger);
+    if (!track || !prev || !next || track.dataset.sliderReady === 'true') return;
 
-  const section = document.getElementById('villa-collection-section');
-  const track = document.getElementById('villa-track');
-  const cards = document.querySelectorAll('.villa-card');
+    track.dataset.sliderReady = 'true';
 
-  if (section && track && cards.length > 0) {
-    gsap.to(track, {
-      x: () => -(track.scrollWidth - window.innerWidth),
-      ease: 'none',
-      scrollTrigger: {
-        trigger: section,
-        pin: true,
-        scrub: 1,
-        start: 'top top',
-        end: () => `+=${track.scrollWidth - window.innerWidth}`,
-        invalidateOnRefresh: true
-      }
+    const getScrollDistance = () => Math.max(track.clientWidth * 0.72, window.innerWidth * 0.5);
+    const maxScrollLeft = () => Math.max(0, track.scrollWidth - track.clientWidth - 1);
+
+    const updateControls = () => {
+      const canScroll = track.scrollWidth > track.clientWidth + 1;
+      prev.hidden = !canScroll;
+      next.hidden = !canScroll;
+
+      if (!canScroll) return;
+
+      prev.disabled = track.scrollLeft <= 1;
+      next.disabled = track.scrollLeft >= maxScrollLeft();
+    };
+
+    prev.addEventListener('click', () => {
+      track.scrollBy({ left: -getScrollDistance(), behavior: 'smooth' });
     });
 
-    cards.forEach((card) => {
-      const imageWrapper = card.querySelector('.villa-image-wrapper');
-
-      if (imageWrapper) {
-        gsap.to(imageWrapper, {
-          xPercent: 20,
-          ease: 'none',
-          scrollTrigger: {
-            trigger: section,
-            start: 'top top',
-            end: () => `+=${track.scrollWidth - window.innerWidth}`,
-            scrub: true
-          }
-        });
-      }
+    next.addEventListener('click', () => {
+      track.scrollBy({ left: getScrollDistance(), behavior: 'smooth' });
     });
 
-    ScrollTrigger.create({
-      trigger: section,
-      start: 'top top',
-      end: () => `+=${track.scrollWidth - window.innerWidth}`,
-      onUpdate: () => {
-        const viewportCenter = window.innerWidth / 2;
+    track.addEventListener('scroll', updateControls, { passive: true });
+    window.addEventListener('resize', updateControls);
+    updateControls();
+  };
 
-        cards.forEach((card) => {
-          const rect = card.getBoundingClientRect();
-          const cardCenter = rect.left + rect.width / 2;
-          const distance = Math.abs(viewportCenter - cardCenter);
-          const threshold = rect.width;
+  document.addEventListener('astro:page-load', initVillaCollection);
 
-          let progress = 1 - distance / threshold;
-          progress = Math.max(0, Math.min(1, progress));
-
-          const scale = 1 + 0.02 * progress;
-          const opacity = 0.5 + 0.5 * progress;
-
-          gsap.set(card, {
-            scale,
-            opacity
-          });
-        });
-      }
-    });
-
-    gsap.set(cards, { opacity: 0.5, scale: 1 });
+  if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    initVillaCollection();
+  } else {
+    document.addEventListener('DOMContentLoaded', initVillaCollection);
   }
 </script>
