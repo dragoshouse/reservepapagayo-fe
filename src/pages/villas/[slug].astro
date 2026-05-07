@@ -216,13 +216,14 @@ const formattedStartingPrice =
 
       {ambientVideoUrl && (
         <section class="villa-ambient-video relative bg-[#F8F7F3] px-0 py-20 md:py-32 overflow-hidden" data-theme="light" aria-label={`${title} ambient video`}>
-          <div class="relative h-[70vh] min-h-[34rem] w-full overflow-hidden">
+          <div class="relative h-[70vh] min-h-[34rem] w-full overflow-hidden bg-black">
             <video
               class="h-full w-full object-cover"
-              src={ambientVideoUrl}
+              data-ambient-video
+              data-hls-src={ambientVideoUrl}
               autoplay
-              loop
               muted
+              loop
               playsinline
               preload="metadata"
             ></video>
@@ -325,8 +326,51 @@ const formattedStartingPrice =
 
 <script>
   import { gsap } from 'gsap';
+  import Hls from 'hls.js';
+
+  function initAmbientVideos() {
+    const ambientVideos = document.querySelectorAll<HTMLVideoElement>('video[data-ambient-video]');
+
+    ambientVideos.forEach((video) => {
+      if (video.dataset.hlsInitialized === 'true') return;
+
+      const videoUrl = video.dataset.hlsSrc;
+      if (!videoUrl) return;
+
+      video.dataset.hlsInitialized = 'true';
+      video.muted = true;
+      video.loop = true;
+      video.playsInline = true;
+
+      const startPlayback = () => {
+        video.play().catch(() => {
+          // Autoplay can still be blocked by browser/user settings; keep the media ready.
+        });
+      };
+
+      if (Hls.isSupported()) {
+        const hls = new Hls({
+          enableWorker: true
+        });
+
+        hls.loadSource(videoUrl);
+        hls.attachMedia(video);
+        hls.on(Hls.Events.MANIFEST_PARSED, startPlayback);
+
+        video.addEventListener('emptied', () => hls.destroy(), { once: true });
+        return;
+      }
+
+      if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = videoUrl;
+        video.addEventListener('loadedmetadata', startPlayback, { once: true });
+      }
+    });
+  }
 
   function initVillaTemplate() {
+    initAmbientVideos();
+
     const title = document.querySelector('.villa-title');
     if (title) {
       gsap.to(title, {
