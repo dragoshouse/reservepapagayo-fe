@@ -1,15 +1,46 @@
 ---
-import { Image } from 'astro:assets';
 import bgThePeninsula from '../assets/hero-bg.jpg';
-import bgVillas from '../assets/feature-villa.jpg';
-import bgContact from '../assets/hero-bg-new.webp';
+import { sanityClient } from '../utils/sanity';
 
-const navItems = [
-  { label: 'Villa Collection', href: '/villas', image: bgVillas },
-  { label: 'The Peninsula', href: '/the-peninsula', image: bgThePeninsula },
-  { label: 'About Us', href: '/about', image: bgThePeninsula },
-  { label: 'Contact', href: '/contact', image: bgContact },
+const menuQuery = `*[_type == "siteSettings"][0]{
+  mainMenu[]{
+    label,
+    link,
+    "imageUrl": hoverImage.asset->url
+  }
+}`;
+
+const fallbackMenuImage = bgThePeninsula.src;
+const fallbackNavItems = [
+  { label: 'Villa Collection', href: '/villas', imageUrl: fallbackMenuImage },
+  { label: 'The Peninsula', href: '/the-peninsula', imageUrl: fallbackMenuImage },
+  { label: 'About Us', href: '/about', imageUrl: fallbackMenuImage },
+  { label: 'Contact', href: '/contact', imageUrl: fallbackMenuImage },
 ];
+
+let siteSettings = null;
+try {
+  siteSettings = await sanityClient.fetch(menuQuery);
+} catch (error) {
+  console.error('Error fetching fullscreen menu settings:', error);
+}
+
+const optimizeSanityImageUrl = (imageUrl) => {
+  if (!imageUrl) return fallbackMenuImage;
+
+  const separator = imageUrl.includes('?') ? '&' : '?';
+  return `${imageUrl}${separator}w=2200&auto=format&q=85`;
+};
+
+const sanitizedMainMenu = (siteSettings?.mainMenu ?? [])
+  .map((item) => ({
+    label: item?.label ?? '',
+    href: item?.link ?? '',
+    imageUrl: optimizeSanityImageUrl(item?.imageUrl),
+  }))
+  .filter((item) => item?.label && item?.href);
+
+const navItems = sanitizedMainMenu?.length ? sanitizedMainMenu : fallbackNavItems;
 ---
 
 <div id="fullscreen-menu" class="fixed inset-0 z-[100] w-full h-full overflow-hidden opacity-0 invisible pointer-events-none">
@@ -17,11 +48,12 @@ const navItems = [
   <div class="absolute inset-0 w-full h-full bg-black">
     {navItems.map((item, index) => (
       <div class="absolute inset-0 w-full h-full overflow-hidden menu-bg-container">
-        <Image
-          src={item.image}
-          alt={item.label}
+        <img
+          src={item?.imageUrl ?? fallbackMenuImage}
+          alt={item?.label ?? 'Experience Papagayo'}
           class="w-full h-full object-cover opacity-0 menu-bg-image"
-          quality="max"
+          loading={index === 0 ? 'eager' : 'lazy'}
+          decoding="async"
           data-index={index}
         />
       </div>
@@ -42,11 +74,11 @@ const navItems = [
       {navItems.map((item, index) => (
         <div class="overflow-hidden">
           <a
-            href={item.href}
+            href={item?.href ?? '/'}
             class="menu-link block text-4xl md:text-7xl lg:text-8xl text-white font-serif tracking-wide transition-[font-style] duration-500 hover:italic opacity-0 translate-y-full"
             data-index={index}
           >
-            {item.label}
+            {item?.label ?? 'Experience Papagayo'}
           </a>
         </div>
       ))}
@@ -62,7 +94,6 @@ const navItems = [
     const menu = document.getElementById('fullscreen-menu');
     const links = document.querySelectorAll('.menu-link');
     const bgImages = document.querySelectorAll('.menu-bg-image');
-    const bgContainers = document.querySelectorAll('.menu-bg-container');
     const hamburgerLines = document.querySelectorAll('#menu-toggle span');
     const menuClose = document.getElementById('menu-close');
 
@@ -73,7 +104,9 @@ const navItems = [
 
     // Initial state setup for clip path
     gsap.set(menu, { clipPath: 'polygon(0% 0%, 100% 0%, 100% 0%, 0% 0%)' });
-    gsap.set(bgImages[0], { opacity: 0.6, scale: 1 }); // Default background
+    if (bgImages[0]) {
+      gsap.set(bgImages[0], { opacity: 0.6, scale: 1 }); // Default background
+    }
 
     // Menu Reveal Animation
     tl.to(menu, {
@@ -140,7 +173,7 @@ const navItems = [
       link.addEventListener('mouseenter', (e) => {
         const index = parseInt((e.target as HTMLElement).dataset.index || '0');
 
-        if (index === activeIndex) return;
+        if (index === activeIndex || !bgImages[index] || !bgImages[activeIndex]) return;
 
         // Fade out previous image
         gsap.to(bgImages[activeIndex], {

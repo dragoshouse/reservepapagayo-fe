@@ -1,77 +1,160 @@
 ---
-const papagayoLinks = [
+import { sanityClient } from '../utils/sanity';
+
+const siteSettingsQuery = `*[_type == "siteSettings"][0]{
+  brandTitle,
+  footerTagline,
+  contactEmail,
+  contactPhone,
+  mainMenu[]{
+    label,
+    link,
+    "imageUrl": hoverImage.asset->url
+  },
+  socialLinks[]{
+    label,
+    link
+  }
+}`;
+
+const villasQuery = `*[_type == "villa"] | order(_createdAt desc) {
+  title,
+  "slug": slug.current
+}`;
+
+const fallbackMainMenu = [
   { label: 'About', href: '/about' },
   { label: 'The Peninsula', href: '/the-peninsula' },
   { label: 'Experiences', href: '/#experiences' },
   { label: 'Contact', href: '/contact' },
 ];
 
-const villaLinks = [
+const fallbackVillaLinks = [
   { label: 'Esmeralda', href: '/villas/villa-esmeralda' },
   { label: 'The Hive', href: '/villas/the-hive' },
   { label: 'Treehouse', href: '/villas/treehouse' },
   { label: 'Casa Coral', href: '/villas/casa-coral' },
 ];
 
-const socialLinks = [
+const fallbackSocialLinks = [
   { label: 'Instagram', href: '#' },
   { label: 'LinkedIn', href: '#' },
 ];
 
-const linkClass = 'text-xs font-medium uppercase tracking-[0.24em] text-black/60 transition-colors duration-500 ease-out hover:text-black';
+let siteSettings = null;
+let villaDocuments = [];
+
+try {
+  siteSettings = await sanityClient.fetch(siteSettingsQuery);
+} catch (error) {
+  console.error('Error fetching footer site settings:', error);
+}
+
+try {
+  villaDocuments = await sanityClient.fetch(villasQuery);
+} catch (error) {
+  console.error('Error fetching footer villas:', error);
+}
+
+const brandTitle = siteSettings?.brandTitle ?? 'EXPERIENCE PAPAGAYO';
+const footerTagline = siteSettings?.footerTagline ?? 'Destination living, redefined.';
+const contactEmail = siteSettings?.contactEmail ?? 'stay@experiencepapagayo.com';
+const contactPhone = siteSettings?.contactPhone ?? '';
+
+const mainMenuLinks = (siteSettings?.mainMenu ?? [])
+  .map((item) => ({
+    label: item?.label ?? '',
+    href: item?.link ?? '',
+  }))
+  .filter((item) => item?.label && item?.href);
+
+const villaLinks = (villaDocuments ?? [])
+  .map((villa) => ({
+    label: villa?.title ?? '',
+    href: villa?.slug ? `/villas/${villa?.slug}` : '',
+  }))
+  .filter((villa) => villa?.label && villa?.href);
+
+const socialLinks = (siteSettings?.socialLinks ?? [])
+  .map((link) => ({
+    label: link?.label ?? '',
+    href: link?.link ?? '',
+  }))
+  .filter((link) => link?.label && link?.href);
+
+const displayMainMenuLinks = mainMenuLinks?.length ? mainMenuLinks : fallbackMainMenu;
+const displayVillaLinks = villaLinks?.length ? villaLinks : fallbackVillaLinks;
+const displaySocialLinks = socialLinks?.length ? socialLinks : fallbackSocialLinks;
+const currentYear = new Date().getFullYear();
+const linkClass = 'group inline-flex w-fit items-center text-[0.68rem] font-medium uppercase tracking-[0.28em] text-black/55 transition-colors duration-500 ease-out hover:text-black';
+const headingClass = 'text-[0.68rem] font-semibold uppercase tracking-[0.32em] text-black/35';
 ---
 
-<footer id="site-footer" class="relative z-10 w-full bg-[#EAE8E1] px-8 py-24 text-black md:px-12" data-theme="light">
-  <div class="mx-auto w-full max-w-[1920px]">
-    <div class="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-4 lg:gap-8">
-      <div class="footer-col">
-        <a href="/" class="block max-w-xs font-serif text-3xl leading-none tracking-[-0.03em] text-black transition-opacity duration-500 hover:opacity-70 md:text-4xl" aria-label="Experience Papagayo home">
-          EXPERIENCE PAPAGAYO
+<footer id="site-footer" class="relative z-10 w-full bg-[#EAE8E1] px-6 py-20 text-black md:px-12 md:py-24" data-theme="light">
+  <div class="mx-auto w-full max-w-[1680px]">
+    <div class="grid grid-cols-1 gap-14 border-y border-black/10 py-14 md:grid-cols-2 md:gap-x-10 md:gap-y-16 lg:grid-cols-4 lg:gap-12 lg:py-20">
+      <section class="footer-col" aria-label="Brand information">
+        <p class={headingClass}>Reserve Papagayo</p>
+        <a href="/" class="mt-7 block max-w-[18rem] font-serif text-4xl leading-[0.88] tracking-[-0.055em] text-black transition-opacity duration-500 hover:opacity-70 md:text-5xl" aria-label={`${brandTitle} home`}>
+          {brandTitle}
         </a>
-        <p class="mt-6 max-w-[18rem] text-sm leading-relaxed text-black/60 md:text-base">
-          Destination living, redefined.
-        </p>
-      </div>
+        {footerTagline && (
+          <p class="mt-7 max-w-[18rem] text-sm font-light leading-relaxed text-black/55 md:text-base">
+            {footerTagline}
+          </p>
+        )}
+      </section>
 
-      <nav class="footer-col" aria-label="Papagayo footer navigation">
-        <h2 class="font-serif text-2xl leading-none tracking-[-0.02em] text-black md:text-3xl">Papagayo</h2>
-        <ul class="mt-8 space-y-4">
-          {papagayoLinks.map((link) => (
+      <nav class="footer-col" aria-label="Main footer navigation">
+        <h2 class={headingClass}>Main Menu</h2>
+        <ul class="mt-7 space-y-4">
+          {displayMainMenuLinks.map((link) => (
             <li>
-              <a href={link.href} class={linkClass}>{link.label}</a>
+              <a href={link?.href ?? '/'} class={linkClass}>{link?.label ?? 'Explore'}</a>
             </li>
           ))}
         </ul>
       </nav>
 
       <nav class="footer-col" aria-label="Villas footer navigation">
-        <h2 class="font-serif text-2xl leading-none tracking-[-0.02em] text-black md:text-3xl">Villas</h2>
-        <ul class="mt-8 space-y-4">
-          {villaLinks.map((link) => (
+        <h2 class={headingClass}>Villas</h2>
+        <ul class="mt-7 space-y-4">
+          {displayVillaLinks.map((villa) => (
             <li>
-              <a href={link.href} class={linkClass}>{link.label}</a>
+              <a href={villa?.href ?? '/villas'} class={linkClass}>{villa?.label ?? 'Villa Collection'}</a>
             </li>
           ))}
         </ul>
       </nav>
 
-      <nav class="footer-col" aria-label="Social links">
-        <h2 class="font-serif text-2xl leading-none tracking-[-0.02em] text-black md:text-3xl">Follow us</h2>
-        <ul class="mt-8 space-y-4">
-          {socialLinks.map((link) => (
-            <li>
-              <a href={link.href} class={linkClass} target="_blank" rel="noopener noreferrer">{link.label}</a>
-            </li>
-          ))}
-        </ul>
-      </nav>
+      <section class="footer-col" aria-label="Social and contact links">
+        <h2 class={headingClass}>Social / Contact</h2>
+        <div class="mt-7 space-y-7">
+          <ul class="space-y-4">
+            {displaySocialLinks.map((link) => (
+              <li>
+                <a href={link?.href ?? '#'} class={linkClass} target="_blank" rel="noopener noreferrer">{link?.label ?? 'Social'}</a>
+              </li>
+            ))}
+          </ul>
+
+          <div class="space-y-4">
+            {contactEmail && (
+              <a href={`mailto:${contactEmail}`} class={linkClass}>{contactEmail}</a>
+            )}
+            {contactPhone && (
+              <a href={`tel:${contactPhone}`} class={linkClass}>{contactPhone}</a>
+            )}
+          </div>
+        </div>
+      </section>
     </div>
 
-    <div class="footer-col mt-20 border-t border-black/10 pt-8 md:mt-24">
-      <div class="flex flex-col gap-6 text-xs font-medium uppercase tracking-[0.24em] text-black/60 md:flex-row md:items-center md:justify-between">
+    <div class="footer-col pt-8 md:pt-10">
+      <div class="flex flex-col gap-5 text-[0.64rem] font-medium uppercase tracking-[0.26em] text-black/45 md:flex-row md:items-center md:justify-between">
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-6">
           <a href="#" class="transition-colors duration-500 hover:text-black">Cookie Information</a>
-          <p>© 2026 Experience Papagayo</p>
+          <p>© {currentYear} {brandTitle}</p>
         </div>
         <a href="#" class="transition-colors duration-500 hover:text-black">Designed by Drago&apos;s House</a>
       </div>
@@ -85,25 +168,30 @@ const linkClass = 'text-xs font-medium uppercase tracking-[0.24em] text-black/60
 
   gsap.registerPlugin(ScrollTrigger);
 
-  const footer = document.querySelector('#site-footer');
-  const footerColumns = gsap.utils.toArray<HTMLElement>('#site-footer .footer-col');
+  const initFooterReveal = () => {
+    const footer = document.querySelector('#site-footer');
+    const footerColumns = gsap.utils.toArray<HTMLElement>('#site-footer .footer-col');
 
-  if (footer && footerColumns.length) {
+    if (!footer || !footerColumns.length) return;
+
     gsap.fromTo(
       footerColumns,
-      { y: 40, opacity: 0 },
+      { y: 20, opacity: 0 },
       {
         y: 0,
         opacity: 1,
         duration: 1,
         ease: 'power3.out',
-        stagger: 0.15,
+        stagger: 0.12,
         scrollTrigger: {
           trigger: footer,
-          start: 'top 85%',
+          start: 'top 88%',
           once: true,
         },
       }
     );
-  }
+  };
+
+  document.addEventListener('DOMContentLoaded', initFooterReveal);
+  document.addEventListener('astro:page-load', initFooterReveal);
 </script>
