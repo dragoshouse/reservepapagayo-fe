@@ -99,8 +99,40 @@ const title = villa.title ?? 'Villa';
 const heroBgUrl = villa.heroBgUrl ?? null;
 const heroVideoUrl = villa.heroVideoUrl ?? null;
 
-const overviewManifesto = villa.overviewManifesto ?? villa.overviewShort ?? 'A private sanctuary crafted for restorative escapes.';
-const overviewManifestoPart2 = villa.overviewManifestoPart2 ?? null;
+const ESMERALDA_OVERVIEW_INTRO =
+  'Villa Esmeralda is set just steps from the ocean, where architecture and nature meet in a quiet, uninterrupted flow. Defined by its coastal presence and open spatial design, the villa embraces natural light, ocean views, and a seamless connection between indoor and outdoor living.';
+const ESMERALDA_OVERVIEW_OUTRO =
+  'Every space feels intentional—open, calm, and deeply connected to its surroundings. The sound of the waves becomes part of the experience, while expansive terraces and social areas invite slow, effortless living. More than a place to stay, Esmeralda offers a grounded, immersive experience by the sea—private, understated, and deeply atmospheric.';
+
+const sanitizeOverviewCopy = (copy: string) => copy.replace(/^\s*at a glance\s*[:—-]?\s*/i, '').trim();
+
+const splitOverviewAtOutdoorLiving = (copy: string) => {
+  const normalizedCopy = sanitizeOverviewCopy(copy);
+  const outdoorLivingMarker = 'outdoor living.';
+  const markerIndex = normalizedCopy.toLowerCase().indexOf(outdoorLivingMarker);
+
+  if (markerIndex === -1) {
+    return { intro: normalizedCopy, outro: null };
+  }
+
+  const introEnd = markerIndex + outdoorLivingMarker.length;
+  const outro = normalizedCopy.slice(introEnd).trim();
+
+  return {
+    intro: normalizedCopy.slice(0, introEnd).trim(),
+    outro: outro.length > 0 ? outro : null
+  };
+};
+
+const rawOverviewManifesto = villa.overviewManifesto ?? villa.overviewShort ?? 'A private sanctuary crafted for restorative escapes.';
+const isVillaEsmeralda = villa.slug === 'villa-esmeralda' || title.toLowerCase() === 'villa esmeralda';
+const esmeraldaOverview = splitOverviewAtOutdoorLiving(rawOverviewManifesto);
+const overviewManifesto = isVillaEsmeralda
+  ? esmeraldaOverview.outro === null
+    ? ESMERALDA_OVERVIEW_INTRO
+    : esmeraldaOverview.intro
+  : sanitizeOverviewCopy(rawOverviewManifesto);
+const overviewManifestoPart2 = isVillaEsmeralda ? ESMERALDA_OVERVIEW_OUTRO : villa.overviewManifestoPart2 ?? null;
 const ambientVideoUrl = villa.ambientVideoUrl ?? null;
 
 const gallery = villa.gallery ?? [];
@@ -150,6 +182,9 @@ const formattedStartingPrice =
 
       <section class="villa-overview pt-32 md:pt-48 pb-20 md:pb-28 px-6 md:px-12 bg-white flex items-center justify-center min-h-[50vh]" data-theme="light">
         <div class="max-w-4xl mx-auto text-center">
+          <p class="mb-8 text-[0.65rem] font-bold uppercase tracking-[0.35em] text-black/35">
+            At a Glance
+          </p>
           <p class="villa-manifesto-text text-3xl md:text-5xl lg:text-6xl font-serif leading-tight md:leading-snug text-[#1A1A1A] opacity-0 translate-y-8">
             {overviewManifesto}
           </p>
